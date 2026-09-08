@@ -1,0 +1,47 @@
+Company name,value,source,target
+TMAS.JK,4240444000000,Shipping service,Total Revenue
+TMAS.JK,103962000000,Stevedoring service,Total Revenue
+TMAS.JK,3444217000000,Total Revenue,Cost of Revenue
+TMAS.JK,900189000000,Total Revenue,Gross Profit
+TMAS.JK,673093000000,Gross Profit,Operating Income
+TMAS.JK,227096000000,Gross Profit,Operating Expense
+TMAS.JK,131619000000,Operating Expense,Salaries and employee benefits
+TMAS.JK,95477000000,Operating Expense,General and administrative
+SMDR.JK,7653166975000,Freight operations,Total Revenue
+SMDR.JK,428451326000,Charter hire (time and voyage charter),Total Revenue
+SMDR.JK,36660233000,Sea freight forwarding services,Total Revenue
+SMDR.JK,142730938000,Warehousing and logistics services,Total Revenue
+SMDR.JK,334643784000,Others,Total Revenue
+SMDR.JK,6943276866000,Total Revenue,Cost of Revenue
+SMDR.JK,1652376390000,Total Revenue,Gross Profit
+SMDR.JK,1281169315000,Gross Profit,Operating Income
+SMDR.JK,371207075000,Gross Profit,Operating Expense
+SMDR.JK,201154650000,Operating Expense,Marketing
+SMDR.JK,170052425000,Operating Expense,Administrative
+HATM.JK,731003724306,Freight,Total Revenue
+HATM.JK,17194894410,Demurrage,Total Revenue
+HATM.JK,539170864359,Total Revenue,Cost of Revenue
+HATM.JK,209027754357,Total Revenue,Gross Profit
+HATM.JK,162872351614,Gross Profit,Operating Income
+HATM.JK,46155402743,Gross Profit,Operating Expense
+HATM.JK,35514218053,Operating Expense,Salary and allowance
+HATM.JK,2416932269,Operating Expense,Entertainment
+HATM.JK,1246176482,Operating Expense,Professional fees 
+HATM.JK,1285623615,Operating Expense,Business travel  
+HATM.JK,752061853,Operating Expense,Employee benefits
+HATM.JK,564259258,Operating Expense,Office rent
+HATM.JK,362844714,Operating Expense,Repairs and maintenance
+HATM.JK,303373416,Operating Expense,Depreciation
+HATM.JK,196875000,Operating Expense,Amortization
+HATM.JK,141299600,Operating Expense,Office supplies
+HATM.JK,89400618,Operating Expense,Permit 
+HATM.JK,59550000,Operating Expense,Donation 
+HATM.JK,3222787865,Operating Expense,Others (expense)
+BIRD.JK,3577987000000,Taxi,Total Revenue
+BIRD.JK,1461960000000,Non-taxi,Total Revenue
+BIRD.JK,3410448000000,Total Revenue,Cost of Revenue
+BIRD.JK,1629499000000,Total Revenue,Gross Profit
+BIRD.JK,634104000000,Gross Profit,Operating Income
+BIRD.JK,995395000000,Gross Profit,Operating Expense
+BIRD.JK,33825000000,Operating Expense,Selling
+BIRD.JK,961570000000,Operating Expense,General and administrative
