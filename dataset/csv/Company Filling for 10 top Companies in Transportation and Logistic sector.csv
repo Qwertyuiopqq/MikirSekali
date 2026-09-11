@@ -1,0 +1,2 @@
+symbol,timestamp,holder_name,holder_type,source,transaction_type,amount_transaction,price,holding_before,holding_after,transaction_value,share_percentage_before,share_percentage_after,share_percentage_transaction
+HATM.JK,2026-09-07T10:57:07,Multi Sarana Nasional,institution,https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-07092026-0100-00.pdf-0.pdf,others,640000000,500.0,1745409861,2385409861,320000000000.0,20.11,25.59,5.48
