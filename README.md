@@ -5,6 +5,7 @@
 
 ```bash
 pip install -r requirements.txt
+```
 
 ## Pipeline
 ![Flowchart](images/framework(draft).png)
