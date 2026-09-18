@@ -18,8 +18,8 @@ plotly>=5.15.0
 # --- BACKEND SERVER (Pilih salah satu sesuai eksekusi akhir) ---
 fastapi>=0.100.0
 uvicorn>=0.22.0
-# Flask>=3.0.0            # Buka komentar ini jika Anda tetap menggunakan Flask API
-# flask-cors>=4.0.0
+Flask>=3.0.0            # Buka komentar ini jika Anda tetap menggunakan Flask API
+flask-cors>=4.0.0
 
 # --- NLP (FINBERT SENTIMENT) ---
 torch>=2.2.0,<2.4.0
