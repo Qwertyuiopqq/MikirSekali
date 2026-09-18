@@ -8,4 +8,4 @@ pip install -r requirements.txt
 ```
 
 ## Pipeline
-![Flowchart](image/framework(draft).png)
+![Flowchart](image/prosesweb.png)
