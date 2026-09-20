@@ -1,0 +1,34 @@
+subsector,symbol,company_name,template,sample_year,has_cost_of_revenue,has_inventories,is_bank_signal,is_insurance_signal
+transportation,GIAA.JK,Garuda Indonesia (Persero) Tbk,DEFAULT_TEMPLATE,2021,True,True,False,False
+heavy-constructions-civil-engineering,SSIA.JK,PT Surya Semesta Internusa Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+properties-real-estate,MPRO.JK,PT Maha Properti Indonesia Tbk,DEFAULT_TEMPLATE,2025,True,False,False,False
+telecommunication,TLKM.JK,PT Telkom Indonesia (Persero) Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+food-beverage,ICBP.JK,Indofood CBP Sukses Makmur Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+utilities,BREN.JK,PT Barito Renewables Energy Tbk.,DEFAULT_TEMPLATE,2023,True,True,False,False
+healthcare-equipment-providers,SRAJ.JK,Sejahteraraya Anugrahjaya Tbk,DEFAULT_TEMPLATE,2024,True,True,False,False
+financing-service,BFIN.JK,BFI Finance Indonesia Tbk,DEFAULT_TEMPLATE,2021,True,False,False,False
+tobacco,HMSP.JK,HM Sampoerna Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+pharmaceuticals-health-care-research,KLBF.JK,Kalbe Farma Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+nondurable-household-products,UNVR.JK,Unilever Indonesia Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+media-entertainment,MSIN.JK,PT MNC Digital Entertainment Tbk,DEFAULT_TEMPLATE,2025,True,False,False,False
+industrial-goods,IMPC.JK,PT Impack Pratama Industri Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+food-staples-retailing,AMRT.JK,PT Sumber Alfaria Trijaya Tbk.,DEFAULT_TEMPLATE,2025,True,True,False,False
+industrial-services,JTPE.JK,Jasuindo Tiga Perkasa Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+insurance,LIFE.JK,PT MSIG Life Insurance Indonesia Tbk,DEFAULT_TEMPLATE,2023,True,False,False,False
+software-it-services,DCII.JK,PT DCI Indonesia Tbk,DEFAULT_TEMPLATE,2023,True,True,False,False
+transportation-infrastructure,JSMR.JK,PT Jasa Marga Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+oil-gas-coal,BYAN.JK,Bayan Resources Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+leisure-goods,IIKP.JK,Inti Agri Resources Tbk,DEFAULT_TEMPLATE,2021,True,True,False,False
+basic-materials,AMMN.JK,PT Amman Mineral Internasional Tbk.,DEFAULT_TEMPLATE,2023,True,True,False,False
+household-goods,MGLV.JK,PT Panca Anugrah Wisesa Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+consumer-services,BUVA.JK,PT Bukit Uluwatu Villa Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+banks,BBCA.JK,PT Bank Central Asia Tbk.,BANK_TEMPLATE,2024,False,False,True,True
+logistics-deliveries,TMAS.JK,PT Temas Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+retailing,MAPI.JK,Mitra Adiperkasa Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+investment-service,YULE.JK,Yulie Sekuritas Indonesia Tbk,DEFAULT_TEMPLATE,2021,True,False,False,False
+alternative-energy,SEMA.JK,PT Semacom Integrated Tbk,DEFAULT_TEMPLATE,2021,True,True,False,False
+holding-investment-companies,DNET.JK,PT Indoritel Makmur Internasional Tbk,DEFAULT_TEMPLATE,2024,True,False,False,False
+automobiles-components,VKTR.JK,PT VKTR Teknologi Mobilitas Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+technology-hardware-equipment,MTDL.JK,Metrodata Electronics Tbk,DEFAULT_TEMPLATE,2025,True,True,False,False
+multi-sector-holdings,ASII.JK,Astra International Tbk,DEFAULT_TEMPLATE,2022,True,True,False,False
+apparel-luxury-goods,POLU.JK,PT Golden Flower Tbk,DEFAULT_TEMPLATE,2021,True,True,False,False
