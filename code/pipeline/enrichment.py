@@ -1,0 +1,108 @@
+"""
+enrichment.py
+-------------
+Stage 2 of the pipeline.
+
+Adds the extra signals needed by both the fuzzy health system and the
+XGBoost model on top of the raw spine:
+  - a mock/derived NLP sentiment score per day
+  - macro index (IDX) closing price, forward-filled
+  - fundamental ratios (ROE, ROA, gross margin, etc.) merged by symbol
+
+Every step is wrapped in its own try/except so a missing optional data
+source degrades gracefully instead of crashing the whole pipeline
+(mirrors the original script's behaviour).
+
+Public entry point: `enrich_features(df_master, paths) -> pd.DataFrame`
+"""
+import json
+
+import numpy as np
+import pandas as pd
+
+try:
+    from . import config
+except ImportError:  # running as a plain script, not as a package
+    import config
+
+
+def _generate_smart_sentiment(row) -> float:
+    """Mock sentiment: mostly noise, with a positive bump on corp actions."""
+    base_score = np.random.normal(0, 0.2)
+    if row.get("is_dividend", 0) == 1 or row.get("is_stock_split", 0) == 1:
+        base_score += np.random.uniform(0.5, 0.9)
+    return max(min(base_score, 1.0), -1.0)
+
+
+def _add_sentiment(df_master: pd.DataFrame, seed: int) -> pd.DataFrame:
+    print("[enrichment] Menyuntikkan skor sentimen NLP...")
+    np.random.seed(seed)
+    df_master["daily_news_sentiment"] = df_master.apply(_generate_smart_sentiment, axis=1)
+    df_master["daily_news_count"] = np.random.randint(0, 15, size=len(df_master))
+    return df_master
+
+
+def _add_macro(df_master: pd.DataFrame, idx_csv_path: str) -> pd.DataFrame:
+    print("[enrichment] Menyuntikkan data makro (IDX)...")
+    try:
+        df_idx = pd.read_csv(idx_csv_path)
+        date_col = "date" if "date" in df_idx.columns else ("Date" if "Date" in df_idx.columns else df_idx.columns[0])
+        df_idx["Date"] = pd.to_datetime(df_idx[date_col]).dt.tz_localize(None).dt.normalize()
+
+        close_col = "Close"
+        if "Close" not in df_idx.columns:
+            possible_cols = [c for c in df_idx.columns if "close" in c.lower() or "last" in c.lower()]
+            close_col = possible_cols[0] if possible_cols else df_idx.columns[1]
+
+        print(f"   -> Menggunakan kolom '{close_col}' sebagai data makro.")
+        df_idx = df_idx[["Date", close_col]].rename(columns={close_col: "idx_macro_close"})
+        df_master = pd.merge(df_master, df_idx, on="Date", how="left")
+        df_master["idx_macro_close"] = df_master["idx_macro_close"].ffill()
+    except Exception as e:
+        print(f"   ⚠️ Melewati injeksi makro: {e}")
+    return df_master
+
+
+def _add_fundamentals(df_master: pd.DataFrame, fundamental_json_path: str) -> pd.DataFrame:
+    print("[enrichment] Menyuntikkan metrik fundamental...")
+    try:
+        with open(fundamental_json_path) as f:
+            company_report = json.load(f)
+
+        if "financial_ratios" in company_report:
+            df_ratios = pd.DataFrame(company_report["financial_ratios"])
+        else:
+            df_ratios = pd.concat(
+                [pd.DataFrame(records) for key, records in company_report.items()
+                 if key == "financial_ratios" or isinstance(records, list)]
+            )
+
+        if not df_ratios.empty and "symbol" in df_ratios.columns:
+            latest_ratios = df_ratios.drop_duplicates(subset=["symbol"], keep="last")
+            keep_cols = ["symbol"] + [c for c in latest_ratios.columns
+                                       if c in ["ROE", "ROA", "gross_margin", "debt_to_equity", "forward_pe"]]
+            latest_ratios = latest_ratios[keep_cols]
+            df_master = pd.merge(df_master, latest_ratios, on="symbol", how="left")
+    except Exception as e:
+        print(f"   ⚠️ Melewati injeksi fundamental (struktur JSON belum sesuai mapping): {e}")
+    return df_master
+
+
+def enrich_features(df_master: pd.DataFrame, paths) -> pd.DataFrame:
+    """
+    Add sentiment, macro, and fundamental features on top of the raw spine.
+
+    Parameters
+    ----------
+    df_master : pd.DataFrame  (output of spine_builder.build_raw_spine)
+    paths : mcs_pipeline.config.Paths
+
+    Returns
+    -------
+    pd.DataFrame, enriched, ready for either fuzzy scoring or XGBoost inference
+    """
+    df_master = df_master.copy()
+    df_master = _add_sentiment(df_master, seed=config.RANDOM_SEED)
+    df_master = _add_macro(df_master, paths.idx_market_summary_csv)
+    df_master = _add_fundamentals(df_master, paths.fundamental_json)
+    return df_master
