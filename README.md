@@ -18,7 +18,7 @@ https://drive.google.com/drive/folders/1q6NxtH5zROvEvAEWO0ihy320rxWmSiUn?usp=sha
 
 # How to run?
 
-## Preparations and Training
+## Full 
 1. Install all requirements
 ```bash
 pip install -r requirements.txt
@@ -41,7 +41,7 @@ python pipeline.py score
 cd ../..
 ```
 Note : I recommend to just download the models in the models GDrive link
-## Running
+## After models download
 1. Install all requirements
 ```bash
 pip install -r requirements.txt
