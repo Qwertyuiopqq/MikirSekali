@@ -54,7 +54,15 @@ python pipeline.py score
 cd ../..
 ```
 
+## Mock Test
 
+After the files and models exist,
+```bash
+cd code/testing
+python run_test.py --input test.csv
+cd ../..
+```
+Note : `test.csv` is the location of the mock data.
 
 # Outputs
 
