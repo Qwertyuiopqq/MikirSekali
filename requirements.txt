@@ -1,55 +1,24 @@
-# --- DATA INGESTION & MASTER CALENDAR SPINE ---
-pandas>=2.1.0,<2.3.0
-numpy>=1.26.0,<2.0.0
-requests>=2.31.0
+# requirements.txt - LOCAL environment only
+# Training runs in Google Colab. This file covers: pipeline (spine/enrichment/
+# xgboost scoring/fuzzy health), local finBERT/IndoBERT inference, data
+# scraping, and EDA notebooks. Confirmed against actual imports in codes.zip.
 
-# --- MACHINE LEARNING (PREDICTOR & EVALUATOR) ---
-xgboost>=2.0.0
-scikit-learn>=1.3.0
-scikit-fuzzy>=0.4.2
-networkx>=3.0
-scipy>=1.11.0
+# --- DATA INGESTION & PIPELINE (spine_builder, enrichment, xgboost_predictor, pipeline.py) ---
+pandas==2.2.3
+numpy==1.26.4
+requests==2.34.2          # data-prep/data_scraping.ipynb
 
-# --- EXPLORATORY DATA ANALYSIS (EDA) ---
-matplotlib>=3.8.0,<3.9.0
-seaborn>=0.13.0,<0.14.0
-plotly>=5.15.0
+# --- MACHINE LEARNING (xgboost_predictor.py - loads pre-trained models, no training) ---
+xgboost==2.0.3
 
-# --- NLP (INDOBERT / INDO-FINBERT SENTIMENT) ---
-torch>=2.2.0,<2.4.0
-transformers>=4.40.0,<4.45.0
-tokenizers>=0.19.0
-safetensors>=0.4.0
-datasets>=2.18.0
-sentencepiece>=0.2.0
-huggingface-hub>=0.22.0
-accelerate>=0.30.0
+# --- EDA (data-analizing/*.ipynb) ---
+matplotlib==3.8.4
+seaborn==0.13.2
+plotly==7.1.0              # NOTE: major bump from 5.x -> 7.x, satisfies >=5.15.0 but check for breaking API changes
 
-# --- BACKEND SERVER (FLASK) ---
-Flask>=3.0.0
-flask-cors>=4.0.0
-python-dotenv>=1.0.0
-waitress>=3.0.0          # WSGI server production untuk Windows
+# --- NLP / IndoBERT-FinBERT sentiment inference (test/finBERT.py) ---
+torch==2.3.1
+transformers==4.45.2       # NOTE: original cap was <4.45.0 - widened to match what's actually installed
 
-# ============================================
-# IndoBERT Sentiment Analysis - Python 3.11.9
-# Training & Inference Environment
-# ============================================
-
-# --- Core ML & Tensor Operations ---
-torch>=2.2.0,<2.4.0
-numpy>=1.26.0,<2.0.0
-scikit-learn>=1.3.0
-
-# --- HuggingFace Ecosystem ---
-transformers>=4.40.0,<4.45.0
-safetensors>=0.4.0
-tokenizers>=0.19.0
-datasets>=2.18.0
-accelerate>=0.30.0   # WAJIB untuk fitur Trainer di Transformers terbaru
-evaluate>=0.4.1      # Direkomendasikan untuk metrik HuggingFace
-
-# --- Backend API (Jika dilatih & di-deploy di environment yang sama) ---
-fastapi>=0.100.0
-uvicorn>=0.22.0
-pydantic>=2.6.0
+# --- BACKEND SERVER ---
+# Deleted for now - no backend code found in codes.zip. Add back when you build it.
