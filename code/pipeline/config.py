@@ -17,15 +17,20 @@ class Paths:
     history_glob_pattern: str = "Histori 5 taun terakhir*"
     idx_market_summary_csv: str = "../../dataset/csv/IDX_market_summary.csv"
     fundamental_json: str = "../../dataset/json/top10-transportation-by-marketcap-company_report.json"
-    xgboost_models_folder: str = "../../models/XGBoost"
+    # Optional REAL sentiment file. If it exists, enrichment.py merges it in
+    # by (Date, symbol). If it's missing (or fails to load), a mock/derived
+    # sentiment score is generated instead so the pipeline never blocks.
+    sentiment_scores_csv: str = "../../dataset/csv/news_sentiment.csv"
+    xgboost_models_folder: str = "models/XGBoost"
     xgboost_model_filename_tpl: str = "finetuned_{company}_model.json"
 
     # ---- outputs ------------------------------------------------------
-    output_folder: str = "../../data/output"
-    mcs_raw_csv: str = "MCS_raw.csv"
-    mcs_report_csv: str = "MCS_report.csv"
-    mcs_predict_csv: str = "MCS_predict.csv"
-    mcs_health_csv: str = "MCS_health.csv"
+    output_folder: str = "./output"
+    mcs_raw_csv: str = "MCS_raw.csv"          # Stage 1: raw calendar spine
+    mcs_features_csv: str = "MCS_features.csv"  # Stage 2: raw + enrichment, ready for XGBoost training/inference
+    mcs_report_csv: str = "MCS_report.csv"    # Stage 3: features + health_score_real
+    mcs_predict_csv: str = "MCS_predict.csv"  # Stage 5: features + XGBoost prediction
+    mcs_health_csv: str = "MCS_health.csv"    # Stage 6: predict + health_score_real + health_score_predict
 
     def output_path(self, filename: str) -> str:
         Path(self.output_folder).mkdir(parents=True, exist_ok=True)
