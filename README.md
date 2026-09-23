@@ -13,3 +13,11 @@ pip install -r requirements.txt
 ## Models
 
 https://drive.google.com/drive/folders/1q6NxtH5zROvEvAEWO0ihy320rxWmSiUn?usp=sharing
+
+## Data Folder
+
+# Output
+1. `MCS_raw.csv` : File Master Calender Spline Raw
+2. `MCS_report.csv` : File Master Calender Spline that have a health score from real data.
+3. `MCS_prdedict.csv` : File Master Calender Spline with predicted data with XGBoost (All Company)
+4. `MCS_health.csv` : File Master Calender Spline that have a health score from real and predicted data. 
