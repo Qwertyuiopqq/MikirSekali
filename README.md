@@ -4,7 +4,7 @@ Ini khusus bagian development metode, model AI
 *   **Package Manager:** `pip`
 
 # Pipeline
-![Flowchart](image/Algorithm.png)
+![Flowchart](image/Algoritma.png)
 
 # Training
 
