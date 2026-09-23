@@ -21,11 +21,11 @@ class Paths:
     # by (Date, symbol). If it's missing (or fails to load), a mock/derived
     # sentiment score is generated instead so the pipeline never blocks.
     sentiment_scores_csv: str = "../../dataset/csv/news_sentiment.csv"
-    xgboost_models_folder: str = "models/XGBoost"
+    xgboost_models_folder: str = "../../models/XGBoost"
     xgboost_model_filename_tpl: str = "finetuned_{company}_model.json"
 
     # ---- outputs ------------------------------------------------------
-    output_folder: str = "./output"
+    output_folder: str = "../../data/output"
     mcs_raw_csv: str = "MCS_raw.csv"          # Stage 1: raw calendar spine
     mcs_features_csv: str = "MCS_features.csv"  # Stage 2: raw + enrichment, ready for XGBoost training/inference
     mcs_report_csv: str = "MCS_report.csv"    # Stage 3: features + health_score_real
