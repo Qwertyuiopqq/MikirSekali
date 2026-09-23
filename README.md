@@ -17,3 +17,8 @@ date (Index),	symbol (Index),	target_volume_T_plus_1 (Y),	volume_hari_ini,	MA_90
 
 # Base variabel 1 Bisnis
 date (Index),	symbol (Index),	target_volume_T_plus_1 (Y),	volume_hari_ini,	MA_90_hari_volume,	volatilitas_90_hari,	sentimen_bert_spesifik,	total_berita_spesifik, is_dividend,	is_mudik_id.
+
+
+## Lokasi Model
+
+https://drive.google.com/drive/folders/1q6NxtH5zROvEvAEWO0ihy320rxWmSiUn?usp=sharing
