@@ -3,6 +3,9 @@ Ini khusus bagian development metode, model AI
 *   **Python:** `3.11` (Recommended: **3.11.9**)
 *   **Package Manager:** `pip`
 
+# Introduction
+Pitching Deck: https://canva.link/ndw3ggxcxwre0fj
+
 # Pipeline
 ![Flowchart](image/Algoritma.png)
 
