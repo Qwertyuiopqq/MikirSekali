@@ -1,0 +1,17 @@
+{
+  "hidden_size": 32,
+  "learning_rate": 0.005,
+  "symbol": "HATM.JK",
+  "seq_length": 30,
+  "features": [
+    "Close",
+    "dist_to_resistance",
+    "dist_to_support",
+    "hurst_exponent"
+  ],
+  "select_by": "auc",
+  "test_auc": 0.7352464059965319,
+  "test_f1": 0.42780748663101603,
+  "n_test_positive": 101,
+  "n_test_negative": 177
+}

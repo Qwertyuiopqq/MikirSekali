@@ -1,0 +1,17 @@
+{
+  "hidden_size": 64,
+  "learning_rate": 0.001,
+  "symbol": "ASSA.JK",
+  "seq_length": 30,
+  "features": [
+    "Close",
+    "dist_to_resistance",
+    "dist_to_support",
+    "hurst_exponent"
+  ],
+  "select_by": "auc",
+  "test_auc": 1.0,
+  "test_f1": 0.0,
+  "n_test_positive": 85,
+  "n_test_negative": 254
+}

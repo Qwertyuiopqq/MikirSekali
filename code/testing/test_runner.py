@@ -14,9 +14,13 @@ follows the MCS_features master-calendar-spine format, this:
      ("real + future data"). Same formula as pipeline.py Stage 6.
   5. If the input has ground-truth target_volume_T_plus_1, scores the
      predictions with MAE / MAPE / RMSE (metrics.py), per symbol and
-     pooled overall. If it doesn't (pure future/forecast input), this
-     step is skipped and you still get predictions + both health
-     scores.
+     pooled overall -- as TWO tables: one over every calendar-spine row
+     ("all_days", which includes non-trading days where actual volume
+     is 0 by construction) and one restricted to real trading days only
+     ("trading_days_only", actual volume != 0), since the first can look
+     inflated for reasons unrelated to forecasting skill. If the input
+     has no ground truth (pure future/forecast input), this step is
+     skipped and you still get predictions + both health scores.
 
 Public entry point: `run_test(input_csv_path, paths=None) -> dict`
 """
@@ -91,26 +95,37 @@ def run_test(input_csv_path: str, paths: config.Paths = None,
     )
 
     # --- 4) accuracy metrics (only if ground truth is present) ---------
-    metrics_table = None
+    metrics_all_days = None
+    metrics_trading_days = None
     if validation.has_target:
         print("\n=== Menghitung MAE / MAPE / RMSE (prediksi vs. aktual) ===")
-        metrics_table = metrics_mod.build_metrics_table(
+        report = metrics_mod.build_metrics_report(
             df_health, actual_col=config.TARGET_COLUMN,
             predicted_col=config.PREDICTION_COLUMN,
         )
-        if metrics_table.empty:
+        metrics_all_days = report["all_days"]
+        metrics_trading_days = report["trading_days_only"]
+
+        if metrics_all_days.empty:
             print("   ⚠️ Tidak ada baris dengan target aktual DAN prediksi -- metrik dilewati.")
-            metrics_table = None
+            metrics_all_days = None
+            metrics_trading_days = None
         else:
-            print(metrics_table.to_string(index=False))
+            print("\n-- Semua hari kalender (termasuk hari non-trading, volume aktual = 0) --")
+            print(metrics_all_days.to_string(index=False))
+            print("\n-- Hanya hari trading aktual (volume aktual != 0) --")
+            print("   -> Angka ini biasanya lebih representatif untuk menilai model, karena")
+            print("      tidak diencerkan oleh hari libur/akhir pekan pada calendar spine.")
+            print(metrics_trading_days.to_string(index=False))
     else:
         print("\n=== MAE / MAPE dilewati (tidak ada target_volume_T_plus_1 di input) ===")
 
     results = {
-        "MCS_test_real": df_real,       # health_score_real only, no prediction step
-        "MCS_test_predict": df_pred,    # + XGBoost prediction + health_score_predict
-        "MCS_test_health": df_health,   # predict table + health_score_real merged back in
-        "metrics": metrics_table,       # None if no ground truth was available
+        "MCS_test_real": df_real,                       # health_score_real only, no prediction step
+        "MCS_test_predict": df_pred,                     # + XGBoost prediction + health_score_predict
+        "MCS_test_health": df_health,                    # predict table + health_score_real merged back in
+        "metrics_all_days": metrics_all_days,            # MAE/MAPE/RMSE incl. non-trading calendar days
+        "metrics_trading_days_only": metrics_trading_days,  # same, restricted to actual volume != 0
     }
 
     if save_outputs:
@@ -118,9 +133,13 @@ def run_test(input_csv_path: str, paths: config.Paths = None,
         df_health.to_csv(health_out, index=False)
         print(f"\n✅ MCS_test_health disimpan di: {health_out} ({len(df_health)} baris)")
 
-        if metrics_table is not None:
-            metrics_out = paths.output_path("MCS_test_metrics.csv")
-            metrics_table.to_csv(metrics_out, index=False)
-            print(f"✅ MCS_test_metrics disimpan di: {metrics_out}")
+        if metrics_all_days is not None:
+            all_days_out = paths.output_path("MCS_test_metrics_all_days.csv")
+            metrics_all_days.to_csv(all_days_out, index=False)
+            print(f"✅ MCS_test_metrics_all_days disimpan di: {all_days_out}")
+
+            trading_out = paths.output_path("MCS_test_metrics_trading_days_only.csv")
+            metrics_trading_days.to_csv(trading_out, index=False)
+            print(f"✅ MCS_test_metrics_trading_days_only disimpan di: {trading_out}")
 
     return results

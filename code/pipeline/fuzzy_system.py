@@ -4,9 +4,16 @@ fuzzy_system.py
 The fuzzy business-health scoring engine. Pure logic, no I/O, so it's
 easy to unit-test in isolation.
 
-Two modes:
-  - 'real'    : sentiment + trend + stability only     -> health_score_real
-  - 'predict' : same + XGBoost prediction contribution  -> health_score_predict
+Three modes:
+  - 'real'             : sentiment + trend + stability only
+                          -> health_score_real
+  - 'predict'           : same + XGBoost volume prediction contribution
+                          -> health_score_predict
+  - 'predict_breakout'  : same as 'predict' + LSTM-Hurst breakout
+                          probability contribution (only meaningful on
+                          rows where lstm_hurst_predictor.py actually
+                          produced a breakout_probability; NaN there
+                          falls back to treating that contribution as 0)
 """
 import numpy as np
 import pandas as pd
@@ -41,30 +48,47 @@ class BusinessHealthFuzzySystem:
     def _fuzzify_xgboost(xgb_prediction, max_expected_value=1.0):
         return np.clip(xgb_prediction / max_expected_value, 0, 1)
 
+    @staticmethod
+    def _fuzzify_breakout(breakout_probability):
+        # Already a 0-1 probability out of the model's sigmoid; just clip
+        # for safety and treat missing (row too short a history, model/
+        # scaler unavailable, etc.) as "no signal" rather than dropping
+        # the row.
+        return np.clip(pd.Series(breakout_probability).fillna(0.0), 0, 1)
+
     # ---- public API -----------------------------------------------------
-    def calculate_health_score(self, df: pd.DataFrame, mode: str = "real", xgb_col: str = None) -> pd.Series:
+    def calculate_health_score(self, df: pd.DataFrame, mode: str = "real",
+                                xgb_col: str = None, breakout_col: str = None) -> pd.Series:
         """
         Compute the 0-100 health score for every row of `df`.
 
-        mode='real'    -> ignores xgb_col entirely (weight is 0 anyway)
-        mode='predict' -> requires xgb_col to be provided and present in df
+        mode='real'             -> ignores xgb_col/breakout_col entirely
+        mode='predict'          -> requires xgb_col
+        mode='predict_breakout' -> requires xgb_col and breakout_col
         """
-        weights = self.weights_predict if mode == "predict" else self.weights_real
+        if mode == "predict_breakout":
+            weights = config.FUZZY_WEIGHTS_PREDICT_BREAKOUT
+        elif mode == "predict":
+            weights = self.weights_predict
+        else:
+            weights = self.weights_real
 
         f_sent = self._fuzzify_sentiment(df["daily_news_sentiment"])
         f_trend = self._fuzzify_trend(df["daily_return_pct"], df["MA_7_Close"], df["MA_30_Close"])
         f_stab = self._fuzzify_stability(df["volatility_7d"])
 
-        base_score = (
+        total_score = (
             (f_sent * weights["sentiment"]) +
             (f_trend * weights["trend"]) +
             (f_stab * weights["stability"])
         )
 
-        if mode == "predict" and xgb_col is not None:
+        if mode in ("predict", "predict_breakout") and xgb_col is not None:
             f_xgb = self._fuzzify_xgboost(df[xgb_col])
-            total_score = base_score + (f_xgb * weights["xgboost"])
-        else:
-            total_score = base_score
+            total_score = total_score + (f_xgb * weights["xgboost"])
+
+        if mode == "predict_breakout" and breakout_col is not None:
+            f_breakout = self._fuzzify_breakout(df[breakout_col]).values
+            total_score = total_score + (f_breakout * weights["breakout"])
 
         return np.round(total_score * 100, 2)

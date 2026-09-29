@@ -23,6 +23,24 @@ class Paths:
     sentiment_scores_csv: str = "../../dataset/csv/news_sentiment.csv"
     xgboost_models_folder: str = "../../models/XGBoost"
     xgboost_model_filename_tpl: str = "finetuned_{company}_model.json"
+    # Base (pooled) XGBoost model, same folder as the fine-tuned ones. Only
+    # used as a FALLBACK when a symbol has no fine-tuned model of its own.
+    xgboost_base_model_filename: str = "base_transport_model.json"
+    # Optional: LSTM-with-Hurst breakout-probability models, ONE PER COMPANY.
+    # Expected layout (this is exactly what the Colab export zip unpacks to):
+    #
+    #   <lstm_hurst_model_path>/
+    #       ASSA/  best_lstm_hurst_model.pth
+    #              lstm_hurst_scaler.joblib
+    #              lstm_hurst_best_params.json
+    #       BIRD/  ...
+    #       (one sub-folder per symbol, name = symbol without ".JK")
+    #
+    # A company whose sub-folder (or any of its 3 files) is missing is
+    # skipped gracefully -- its breakout_probability stays NaN -- instead
+    # of failing the whole pipeline (same pattern as the optional
+    # sentiment file in enrichment.py).
+    lstm_hurst_model_path: str = "../../models/LSTMwithHurst"
 
     # ---- outputs ------------------------------------------------------
     output_folder: str = "../../data/output"
@@ -60,6 +78,39 @@ FUZZY_WEIGHTS_PREDICT = {
     "stability": 0.15,
     "xgboost": 0.40,
 }
+# Same as FUZZY_WEIGHTS_PREDICT but with the optional LSTM-Hurst breakout
+# probability folded in. Weights below are ONE reasonable rebalancing
+# (still sums to 1.0) -- not derived from anything, just kept
+# proportionally similar to FUZZY_WEIGHTS_PREDICT. Change freely.
+FUZZY_WEIGHTS_PREDICT_BREAKOUT = {
+    "sentiment": 0.15,
+    "trend": 0.20,
+    "stability": 0.15,
+    "xgboost": 0.30,
+    "breakout": 0.20,
+}
+
+# Per-company LSTM-Hurst artifact filenames (inside <lstm_hurst_model_path>/<COMPANY>/).
+LSTM_MODEL_FILENAME = "best_lstm_hurst_model.pth"
+LSTM_SCALER_FILENAME = "lstm_hurst_scaler.joblib"
+LSTM_PARAMS_FILENAME = "lstm_hurst_best_params.json"
+
+# Support / resistance lines (pipeline/support_resistance.py).
+SR_PIVOT_WINDOW = 5          # bars on each side needed to confirm a swing high/low
+SR_LOOKBACK_TRADING_DAYS = 252   # ~1 trading year of pivots are considered
+SR_CLUSTER_ATR_MULT = 0.6    # pivots closer than this many ATRs are merged into one level
+SR_ATR_PERIOD = 14
+SR_MIN_TOUCHES = 2           # prefer levels touched at least this often; weaker ones are only used if a side has none
+# Rolling window for the Hurst exponent, in spine rows. The `hurst` package REFUSES series
+# shorter than 100 points (raises ValueError) -- with the old window of 60 every call failed
+# silently into the "return 0.5" fallback, so hurst_exponent was a constant 0.5 in both
+# training and inference. Must equal HURST_WINDOW in lstm_hurst_prepare.py.
+HURST_WINDOW = 100
+# Regime thresholds for sr_regime. The simplified R/S estimator is biased upward on short
+# windows: a pure random walk of 100 points gives H ~ 0.58 (5-95% range ~0.38-0.84), so
+# 0.55 would label almost everything "trending". Tune to taste.
+SR_HURST_TRENDING = 0.70         # H >= this  -> "trending"       (levels break more easily)
+SR_HURST_MEAN_REVERTING = 0.45   # H <= this  -> "mean_reverting" (levels tend to hold)
 
 TARGET_COLUMN = "target_volume_T_plus_1"
 PREDICTION_COLUMN = "target_volume_T_plus_1_pred"

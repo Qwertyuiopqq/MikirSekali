@@ -11,13 +11,18 @@ Google Colab between two local runs.
       Stage 3: fuzzy health score on REAL data only          -> MCS_report.csv
 
     MANUAL -- upload MCS_features.csv to Colab, run
-              train_finetune_xgboost.py, download the
+              train_xgboost_transfer.py, download the
               base + per-company models into
               <config.xgboost_models_folder> (default models/XGBoost/)
+              Optional: lstm_hurst_prepare.py + lstm_hurst_tune_train.py
+              (Colab) -> unzip LSTMwithHurst.zip into models/ so that
+              models/LSTMwithHurst/<COMPANY>/ holds each company's LSTM.
 
     LOCAL  -- python pipeline.py score
       Stage 5: run the downloaded XGBoost models on
                MCS_features.csv                              -> MCS_predict.csv
+      Stage 5b: per-company LSTM-Hurst breakout probability (optional)
+      Stage 5c: support/resistance lines + Hurst regime (optional)
       Stage 6: fuzzy health score on PREDICTED data, merged
                side-by-side with the REAL score computed in
                Stage 3                                        -> MCS_health.csv
@@ -44,14 +49,19 @@ try:
     from .spine_builder import build_raw_spine
     from .enrichment import enrich_features
     from .xgboost_predictor import run_predictions
+    from .lstm_hurst_predictor import add_breakout_probability
+    from .support_resistance import add_support_resistance
     from .fuzzy_system import BusinessHealthFuzzySystem
 except ImportError:  # running as `python pipeline.py`, not as a package
     import config
     from spine_builder import build_raw_spine
     from enrichment import enrich_features
     from xgboost_predictor import run_predictions
+    from lstm_hurst_predictor import add_breakout_probability
+    from support_resistance import add_support_resistance
     from fuzzy_system import BusinessHealthFuzzySystem
 
+import numpy as np
 import pandas as pd
 
 
@@ -121,15 +131,45 @@ def run_score(paths: config.Paths) -> dict:
 
     print("\n=== STAGE 5/6: Menjalankan prediksi XGBoost -> MCS_predict ===")
     df_predict = run_predictions(df_features, paths)
+
+    print("\n=== STAGE 5b/6: (opsional) Skor breakout LSTM-Hurst (1 model per perusahaan) ===")
+    df_predict = add_breakout_probability(df_predict, paths)
+    has_breakout = "breakout_probability" in df_predict.columns and df_predict["breakout_probability"].notna().any()
+
+    print("\n=== STAGE 5c/6: (opsional) Garis support/resistance (pivot ringan + regime Hurst) ===")
+    try:
+        df_predict = add_support_resistance(df_predict, paths)
+    except Exception as e:  # optional stage: never block the rest of the pipeline
+        print(f"   ⚠️ Garis support/resistance dilewati: {e}")
+
     predict_out = paths.output_path(paths.mcs_predict_csv)
     df_predict.to_csv(predict_out, index=False)
     print(f"✅ MCS_predict disimpan di: {predict_out}  ({len(df_predict)} baris)")
 
     print("\n=== STAGE 6/6: Menggabungkan skor REAL + PREDICTED -> MCS_health ===")
     df_health = df_predict.copy()
-    df_health["health_score_predict"] = fuzzy_sys.calculate_health_score(
-        df_health, mode="predict", xgb_col=config.PREDICTION_COLUMN
-    )
+    if has_breakout:
+        score_breakout = fuzzy_sys.calculate_health_score(
+            df_health, mode="predict_breakout",
+            xgb_col=config.PREDICTION_COLUMN, breakout_col="breakout_probability",
+        )
+        score_plain = fuzzy_sys.calculate_health_score(
+            df_health, mode="predict", xgb_col=config.PREDICTION_COLUMN
+        )
+        # Row-level fallback: with one LSTM per company, some companies (or the first
+        # ~90 days of each) can lack a breakout_probability. Scoring those rows with the
+        # breakout weight would treat "no signal" as "0% breakout" and drag them down,
+        # so they get the plain 'predict' formula instead.
+        has_bp = df_health["breakout_probability"].notna().to_numpy()
+        df_health["health_score_predict"] = np.where(has_bp, score_breakout, score_plain)
+        print(f"   -> breakout_probability dipakai di {int(has_bp.sum())}/{len(has_bp)} baris "
+              f"(mode='predict_breakout'); sisanya memakai mode='predict' (tanpa komponen breakout).")
+    else:
+        df_health["health_score_predict"] = fuzzy_sys.calculate_health_score(
+            df_health, mode="predict", xgb_col=config.PREDICTION_COLUMN
+        )
+        print("   -> breakout_probability tidak tersedia (belum ada model LSTM-Hurst per perusahaan) "
+              "-> health_score_predict dihitung tanpa komponen breakout (mode='predict', seperti sebelumnya).")
 
     # Bring health_score_real back in (computed in Stage 3) so the final
     # table lets you compare actual vs. predicted health side-by-side.
