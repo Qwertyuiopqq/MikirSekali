@@ -1,6 +1,6 @@
 {
   "hidden_size": 32,
-  "learning_rate": 0.001,
+  "learning_rate": 0.005,
   "symbol": "SMDR.JK",
   "seq_length": 30,
   "features": [
@@ -10,7 +10,7 @@
     "hurst_exponent"
   ],
   "select_by": "auc",
-  "test_auc": 0.9051403207331042,
+  "test_auc": 0.8853092783505154,
   "test_f1": 0.0,
   "n_test_positive": 48,
   "n_test_negative": 291

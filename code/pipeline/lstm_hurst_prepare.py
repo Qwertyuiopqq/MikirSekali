@@ -42,7 +42,7 @@ import torch
 from hurst import compute_Hc
 from sklearn.preprocessing import StandardScaler
 
-DATA_CSV = "data_xgboost_anda.csv"
+DATA_CSV = "../../data/output/MCS_features.csv"
 TARGET_SYMBOLS = None      # None = semua simbol di CSV; atau mis. ["ASSA.JK", "BIRD.JK"]
 SEQ_LENGTH = 30
 TRAIN_FRACTION = 0.8

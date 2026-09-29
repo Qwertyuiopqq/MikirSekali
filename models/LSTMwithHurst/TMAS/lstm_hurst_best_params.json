@@ -10,7 +10,7 @@
     "hurst_exponent"
   ],
   "select_by": "auc",
-  "test_auc": 0.815805109922757,
+  "test_auc": 0.8023370964547435,
   "test_f1": 0.0,
   "n_test_positive": 33,
   "n_test_negative": 306

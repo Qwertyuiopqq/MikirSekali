@@ -31,14 +31,13 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from sklearn.metrics import mean_absolute_error
-from google.colab import files
 
 # ==========================================
 # 1. UNGGAH DATASET (INTERAKTIF COLAB)
 # ==========================================
 # Sumber data: MCS_features.csv -- output Stage 2 dari mcs_pipeline
 # (raw spine + sentiment/macro/fundamental, siap dipakai XGBoost).
-df = pd.read_csv("MCS_features.csv")
+df = pd.read_csv("../../data/output/MCS_features.csv")
 print("✅ Dataset berhasil dibaca!")
 
 # ==========================================
@@ -133,10 +132,9 @@ base_params = {
 print("\n[Tahap 1] Melatih Base Model (Pengetahuan Sektor Gabungan)...")
 base_model = xgb.train(base_params, dtrain_base, num_boost_round=100)
 
-base_model_path = 'base_transport_model.json'
+base_model_path = '../../models/XGBoost/base_transport_model.json'
 base_model.save_model(base_model_path)
 print(f"✅ Base Model selesai dilatih!")
-files.download(base_model_path)
 
 # ==========================================
 # 5. TAHAP 2: TRANSFER LEARNING UNTUK SETIAP PERUSAHAAN
@@ -188,7 +186,7 @@ for target_company in target_companies:
         xgb_model=base_model_path
     )
 
-    finetuned_model_path = f'finetuned_{target_company.replace(".JK", "")}_model.json'
+    finetuned_model_path = f'../../models/XGBoost/finetuned_{target_company.replace(".JK", "")}_model.json'
     transfer_model.save_model(finetuned_model_path)
     print(f"✅ Fine-Tuned Model selesai dilatih untuk {target_company}!")
 
@@ -207,8 +205,6 @@ for target_company in target_companies:
     print(f"   MAE={mae:,.0f}  WMAPE={wmape:.2f}%  SMAPE={smape:.2f}%  (n={len(df_tune)})")
     print(df_tune[['Date', 'target_volume_T_plus_1', 'Predicted_Volume_T_plus_1']].head())
 
-    print(f"📥 Mengunduh model JSON untuk {target_company} ke laptop Anda...")
-    files.download(finetuned_model_path)
 
 print("\n🎉 Semua perusahaan selesai di-fine-tune!")
 print("\n=== RINGKASAN AKURASI PER SIMBOL (skala volume asli, training set) ===")

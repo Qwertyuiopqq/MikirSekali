@@ -1,6 +1,6 @@
 {
-  "hidden_size": 32,
-  "learning_rate": 0.005,
+  "hidden_size": 64,
+  "learning_rate": 0.001,
   "symbol": "HATM.JK",
   "seq_length": 30,
   "features": [
@@ -10,8 +10,8 @@
     "hurst_exponent"
   ],
   "select_by": "auc",
-  "test_auc": 0.7352464059965319,
-  "test_f1": 0.42780748663101603,
+  "test_auc": 0.7660121944397831,
+  "test_f1": 0.580952380952381,
   "n_test_positive": 101,
   "n_test_negative": 177
 }

@@ -1,5 +1,5 @@
 {
-  "hidden_size": 64,
+  "hidden_size": 32,
   "learning_rate": 0.001,
   "symbol": "ASSA.JK",
   "seq_length": 30,
