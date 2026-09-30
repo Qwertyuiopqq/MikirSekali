@@ -5,6 +5,7 @@ Ini khusus bagian development metode, model AI
 
 # Introduction
 A website of decision thinking machine for helping investor and business owners in preparing strategy
+
 Pitching Deck: https://canva.link/ndw3ggxcxwre0fj
 
 # Pipeline
