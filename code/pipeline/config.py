@@ -41,6 +41,10 @@ class Paths:
     # of failing the whole pipeline (same pattern as the optional
     # sentiment file in enrichment.py).
     lstm_hurst_model_path: str = "../../models/LSTMwithHurst"
+    # Fine-tuned FinBERT (HuggingFace format: config.json, tokenizer files, weights).
+    # Only used by website/sentiment_trigger.py (demo sentiment badge), not by the
+    # pipeline itself. Relative to pipeline/, like every other path above.
+    finbert_model_folder: str = "../../models/finBERT/model_finetuned"
 
     # ---- outputs ------------------------------------------------------
     output_folder: str = "../../data/output"

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_dashboard" name="shell-type" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main> :first-child {
+                margin-top: 0 !important;
+            }
+
+            main> :last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#454747",
+                        "surface-container-high": "#2a2a2a",
+                        "on-background": "#efece7",
+                        "on-primary-fixed-variant": "#584400",
+                        "inverse-on-surface": "#313030",
+                        "text-secondary": "#E0E0E0",
+                        "on-tertiary-container": "#006330",
+                        "inverse-surface": "#e5e2e1",
+                        "primary-fixed-dim": "#f0c110",
+                        "on-surface-variant": "#d1c5ac",
+                        "primary": "#f5c518",
+                        "surface-container": "#201f1f",
+                        "surface-highlight": "#202020",
+                        "on-surface": "#ffffff",
+                        "text-muted": "#9E9E9E",
+                        "outline-variant": "#4e4633",
+                        "tertiary-container": "#52e586",
+                        "canvas-base": "#0C0C0C",
+                        "surface": "#131313",
+                        "surface-card": "#181818",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-fixed": "#ffe08b",
+                        "on-tertiary": "#003919",
+                        "primary-container": "#f5c518",
+                        "background": "#0C0C0C",
+                        "outline": "#9a9078",
+                        "semantic-warning": "#F59E0B",
+                        "tertiary": "#4ADE80",
+                        "on-secondary-container": "#b4b5b5",
+                        "canvas-elevated": "#141414",
+                        "surface-tint": "#f0c110",
+                        "inverse-primary": "#745b00",
+                        "semantic-danger": "#EF4444",
+                        "text-primary": "#FFFFFF",
+                        "secondary-fixed": "#e2e2e2",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "surface-variant": "#353534",
+                        "on-primary-fixed": "#241a00",
+                        "semantic-success": "#4ADE80",
+                        "border-strong": "#383838",
+                        "surface-container-lowest": "#0e0e0e",
+                        "border-subtle": "#2E2E2E",
+                        "border": "#2E2E2E",
+                        "surface-2": "#1c1b1b",
+                        "surface-3": "#242323",
+                        "surface-dim": "#0e0e0e",
+                        "muted": "#9E9E9E",
+                        "text-soft": "#c6c6c7",
+                        "danger": "#EF4444",
+                        "warning": "#F59E0B",
+                        "info": "#9FB8D9",
+                        "on-primary": "#0c0c0c",
+                        "tertiary-fixed": "#6dfe9c",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed-variant": "#005227",
+                        "on-secondary-fixed-variant": "#454747",
+                        "brand-gold-warm": "#E5B824",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "secondary": "#c6c6c7",
+                        "surface-container-highest": "#353534",
+                        "on-secondary": "#2f3131",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "surface-bright": "#3a3939",
+                        "on-primary-container": "#0c0c0c",
+                        "on-tertiary-fixed": "#00210c",
+                        "tertiary-fixed-dim": "#4de082",
+                        "on-error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "space-xs": "0.25rem",
+                        "gutter": "1rem",
+                        "space-md": "1rem",
+                        "space-lg": "1.5rem",
+                        "gutter-mobile": "0.75rem",
+                        "margin": "1.5rem",
+                        "space-xl": "2rem",
+                        "space-sm": "0.5rem",
+                        "margin-mobile": "1rem"
+                    },
+                    "fontFamily": {
+                        "display-mobile": ["Work Sans"],
+                        "card-title": ["Work Sans"],
+                        "section-title": ["Work Sans"],
+                        "page-title": ["Work Sans"],
+                        "metric-sm": ["JetBrains Mono"],
+                        "body-sm": ["Work Sans"],
+                        "label": ["JetBrains Mono"],
+                        "micro": ["JetBrains Mono"],
+                        "body": ["Work Sans"],
+                        "page-title-mobile": ["Work Sans"],
+                        "display": ["Work Sans"],
+                        "metric-display": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-mobile": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "card-title": ["15px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "section-title": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "page-title": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+                        "metric-sm": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "micro": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "page-title-mobile": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "metric-display": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.03em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        };</script>
+</head>
+
+<body
+    class="bg-background font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-primary">
+    <aside
+        class="fixed left-0 top-0 h-screen w-[230px] bg-surface-container-lowest flex flex-col justify-between z-40 border-r border-border select-none">
+        <div class="flex flex-col">
+            <div class="h-16 px-space-md flex items-center gap-space-sm border-b border-border">
+                <div
+                    class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center p-0.5 border border-border shrink-0 overflow-hidden">
+                    <img alt="Mikir Sekali Logo" class="h-full w-full object-contain invert"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXu2SfZ6BKN0ifAJRVRCrwuc_Ig0Yh2cpNWZXRG4aGU9MXuYcw3-Kw4bcPUOzn7idiQzEp-hj3QO2SD_7jvleWv-fX6cRclX_hl6i9VHL-s7OTUVdXg82mDM-1cVhjp7_i60GtfEdVfcMKQhIfU4leFucq03eR9EaxGsSIvHYKXlkTF6YQJEyn1sdy_YVS0XinQS8-IpuAW9H3sdU1TFuNU9GFROcN_2Zock1OtvTRQo5puzVsAcdzssFN7Vfjg3AmF5Q" />
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <div class="flex items-center gap-space-xs"><span
+                            class="font-card-title text-[14px] text-on-surface font-bold tracking-tight truncate">Mikir
+                            Sekali PRO</span></div><span
+                        class="font-micro text-[9px] text-[#f5c518] tracking-tight truncate">Pikir Sekali, Langsung
+                        Akali</span>
+                </div>
+            </div>
+            <div class="px-space-md pt-space-md pb-space-xs"><span
+                    class="font-micro text-micro uppercase tracking-wider text-muted font-bold">Terminal Core</span>
+            </div>
+            <nav class="flex flex-col px-space-xs gap-0.5"
+                data-active-classes="bg-surface-2 text-on-surface border-l-2 border-primary pl-[14px] font-medium"><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="overview" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">terminal</span><span
+                        class="truncate">Overview</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="decisions" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">explore</span><span
+                        class="truncate">Decisions</span></a><a aria-current="page"
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded transition-colors bg-surface-2 text-on-surface border-l-2 border-[#f5c518] pl-[14px] font-medium"
+                    data-path="competitive-urgency" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-[#f5c518] transition-colors">radar</span><span
+                        class="truncate font-semibold text-white">Competitive Urgency</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="battle-forecast" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">trending_up</span><span
+                        class="truncate">Battle Forecast</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="strategy-ai" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">memory</span><span
+                        class="truncate">Strategy AI</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="learn" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">menu_book</span><span
+                        class="truncate">Learn</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="watchlist" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">bookmark</span><span
+                        class="truncate">Watchlist</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="decision-journal" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">history</span><span
+                        class="truncate">Decision Journal</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="settings" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">tune</span><span
+                        class="truncate">Settings</span></a></nav>
+        </div>
+        <div class="p-space-md border-t border-border bg-surface-container-lowest/80 flex flex-col gap-space-xs">
+            <div class="flex items-center justify-between"><span
+                    class="font-micro text-micro uppercase tracking-wider text-muted">Data Feeds</span><span
+                    class="inline-flex items-center gap-1.5 font-micro text-micro text-tertiary"><span
+                        class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>Active</span></div>
+            <div class="flex items-center justify-between font-label text-micro text-muted"><span>Updated</span><span
+                    class="text-on-surface font-label">14:32:08 UTC</span></div>
+            <div class="flex items-center justify-between font-label text-micro text-muted"><span>Engine</span><span
+                    class="text-[#f5c518] font-label font-medium">MS-Insight v4.2</span></div>
+        </div>
+    </aside>
+    <div class="pl-[230px]">
+        <header
+            class="fixed top-0 left-[230px] right-0 h-16 bg-surface/90 backdrop-blur-md z-30 border-b border-border">
+            <div class="w-full h-full px-space-lg flex items-center justify-between gap-space-md">
+                <div class="flex items-center gap-space-md min-w-0 max-w-md">
+                    <div class="flex items-center gap-space-sm min-w-0"><span
+                            class="material-symbols-outlined text-[18px] text-[#f5c518] shrink-0">business_center</span><span
+                            class="font-body-sm text-body-sm text-on-surface font-medium truncate">Workspace: NOVA
+                            Systems (NOVA)</span><span
+                            class="hidden xl:inline text-muted font-body-sm text-body-sm">•</span><span
+                            class="hidden xl:inline font-body-sm text-body-sm text-muted truncate">Global Tech
+                            Infrastructure</span></div><span
+                        class="inline-flex items-center px-2 py-0.5 rounded-full font-micro text-micro tracking-wide uppercase bg-tertiary/10 text-tertiary border border-tertiary/30 shrink-0">SCAN
+                        COMPLETE</span>
+                </div>
+                <div class="flex-1 max-w-lg hidden md:block">
+                    <div class="relative flex items-center"><span
+                            class="material-symbols-outlined absolute left-3 text-[18px] text-muted pointer-events-none">search</span><input
+                            class="w-full h-9 pl-9 pr-14 rounded-full bg-surface-dim border border-border text-on-surface placeholder:text-muted font-body-sm text-body-sm focus:outline-none focus:border-[#f5c518] transition-colors"
+                            placeholder="Search company, ticker, market, topic..." type="text" /><kbd
+                            class="absolute right-3 font-label text-micro px-1.5 py-0.5 rounded bg-surface-2 text-muted border border-border pointer-events-none">⌘K</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center gap-space-md shrink-0">
+                    <div
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 border border-border">
+                        <span class="w-2 h-2 rounded-full bg-tertiary"></span><span
+                            class="font-label text-micro uppercase tracking-wider text-tertiary font-bold">MARKETS
+                            OPEN</span>
+                    </div><button
+                        class="p-1.5 rounded-lg text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                        type="button"><span
+                            class="material-symbols-outlined text-[20px]">notifications</span></button><a
+                        class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label text-label border border-border bg-surface-dim hover:bg-surface-2 hover:text-[#f5c518] text-secondary transition-colors"
+                        data-path="learn" href="#"><span
+                            class="material-symbols-outlined text-[16px]">school</span><span>Learn</span></a>
+                    <div class="h-5 w-px bg-border"></div>
+                    <div class="flex items-center gap-space-sm"><img alt="Profile"
+                            class="w-8 h-8 rounded-full object-cover border border-border"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHrCalxjxQLuFgQyTjURfLvirHKqc99EMp-jzh4R7ujIqjBSheGlY4Rm__stK9_RHzBjJKYe3EwBaiKPEYTUfsi2R-LJ-QPfMBtzPXj-DOjd_q_8ENTvm59qwTQijjpfKnJsY9lwPWw8K9ljNAsSG0Hl6m98dQhLKZGfGmZ2Ir6DOVTD6mQ8dO2wSSUbL35b0sXE_gxEomsyviH0-3CVOquW3QdRbB1h8LR8NKwOMfyDciRxFIa2pLvQ" />
+                        <div class="hidden xl:flex flex-col"><span
+                                class="font-card-title text-[13px] leading-tight text-on-surface">Elena
+                                Vance</span><span class="font-micro text-micro text-muted">Lead Strategist</span></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="w-full pt-16 bg-background">
+            <div class="w-full max-w-[1360px] mx-auto p-space-lg min-h-[calc(100vh-4rem)]">
+                <div class="flex flex-col w-full gap-space-lg">
+                    <div class="flex flex-col gap-space-md">
+                        <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+                            <div class="flex flex-col gap-space-xs">
+                                <div class="flex items-center gap-space-xs text-muted">
+                                    <span class="font-micro text-micro uppercase tracking-wider">Market Intelligence
+                                        Cockpit</span>
+                                    <span class="text-micro">/</span>
+                                    <span
+                                        class="font-micro text-micro uppercase tracking-wider text-[#f5c518] font-semibold">Sector
+                                        Dynamic</span>
+                                </div>
+                                <h1 class="font-page-title text-page-title text-on-surface tracking-tight">Competitive
+                                    urgency</h1>
+                                <p class="font-body text-body text-muted max-w-2xl">
+                                    See which competitors matter most to the selected company, why they matter, and how
+                                    quickly pressure is changing across core battlegrounds.
+                                </p>
+                            </div>
+                            <div
+                                class="flex items-center gap-space-xs self-start md:self-auto bg-surface-2 p-1 rounded-full border border-border">
+                                <span class="font-micro text-micro text-muted px-2 uppercase tracking-wide">Sort
+                                    by:</span>
+                                <button
+                                    class="px-3 py-1 rounded-full font-label text-label bg-[#f5c518] text-[#0c0c0c] font-bold border border-[#f5c518] transition-colors shadow-sm">
+                                    Urgency (Highest)
+                                </button>
+                                <button
+                                    class="px-2.5 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors">
+                                    Momentum
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center justify-between flex-wrap gap-space-sm pt-space-xs border-b border-border pb-space-sm">
+                            <div class="flex items-center gap-space-xs overflow-x-auto">
+                                <button
+                                    class="px-3 py-1 rounded-full font-label text-label bg-surface-3 text-[#f5c518] border border-[#f5c518]/50 whitespace-nowrap font-medium">
+                                    All segments (4)
+                                </button>
+                                <button
+                                    class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface hover:bg-surface-2 border border-transparent hover:border-border transition-colors whitespace-nowrap">
+                                    Hyperscale Compute
+                                </button>
+                                <button
+                                    class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface hover:bg-surface-2 border border-transparent hover:border-border transition-colors whitespace-nowrap">
+                                    Distributed DB
+                                </button>
+                                <button
+                                    class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface hover:bg-surface-2 border border-transparent hover:border-border transition-colors whitespace-nowrap">
+                                    AI Inference
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-space-md text-muted font-micro text-micro">
+                                <span class="flex items-center gap-1.5 text-on-surface">
+                                    <span class="w-2 h-2 rounded-full bg-[#f5c518]"></span> Focus: NOVA Target Perimeter
+                                </span>
+                                <span>Refreshed 14m ago</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md w-full items-start">
+                        <div class="lg:col-span-4 flex flex-col gap-space-sm">
+                            <div
+                                class="bg-surface rounded-[20px] border border-border p-space-md flex flex-col gap-space-sm">
+                                <div class="flex items-center justify-between pb-space-xs border-b border-border">
+                                    <span class="font-card-title text-card-title text-on-surface">Urgency Ledger</span>
+                                    <span class="font-label text-micro text-muted">4 ENTITIES EVALUATED</span>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <div
+                                        class="group relative bg-surface-2 hover:bg-surface-3 rounded-[10px] p-space-sm border-l-2 border-l-[#f5c518] border-y border-r border-border transition-all cursor-pointer ring-1 ring-[#f5c518]/10">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="flex flex-col min-w-0">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="font-card-title text-[15px] text-on-surface font-semibold truncate">Apex
+                                                        Grid</span>
+                                                    <span
+                                                        class="font-label text-[11px] text-[#f5c518] font-bold">APEX</span>
+                                                </div>
+                                                <span
+                                                    class="font-body-sm text-[12px] text-muted line-clamp-1 mt-0.5">Price
+                                                    undercutting in Core US enterprise accounts</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full font-micro text-micro tracking-wide uppercase bg-[#f5c518]/15 text-[#f5c518] border border-[#f5c518]/40 shrink-0 font-bold">
+                                                Critical Threat
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-border/60">
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Urgency</span>
+                                                <span class="font-label text-[14px] text-[#f5c518] font-bold">88%</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Momentum</span>
+                                                <span
+                                                    class="font-label text-[14px] text-warning font-semibold">+24%</span>
+                                            </div>
+                                            <div class="flex flex-col text-right">
+                                                <span class="font-micro text-micro text-muted uppercase">Overlap</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">78%</span>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between mt-2 pt-1 font-micro text-[10px] text-muted">
+                                            <span>Cloud Compute Cluster</span>
+                                            <span>Updated 2d ago</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="group relative bg-surface hover:bg-surface-2 rounded-[10px] p-space-sm border border-border transition-all cursor-pointer">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="flex flex-col min-w-0">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="font-card-title text-[15px] text-on-surface truncate">Vector
+                                                        Labs</span>
+                                                    <span class="font-label text-[11px] text-muted">VCTR</span>
+                                                </div>
+                                                <span
+                                                    class="font-body-sm text-[12px] text-muted line-clamp-1 mt-0.5">Next-gen
+                                                    inference chip launch announced</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full font-micro text-micro tracking-wide uppercase bg-warning/10 text-warning border border-warning/30 shrink-0">
+                                                Rising Pressure
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-border/60">
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Urgency</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">71%</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Momentum</span>
+                                                <span
+                                                    class="font-label text-[14px] text-warning font-semibold">+18%</span>
+                                            </div>
+                                            <div class="flex flex-col text-right">
+                                                <span class="font-micro text-micro text-muted uppercase">Overlap</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">64%</span>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between mt-2 pt-1 font-micro text-[10px] text-muted">
+                                            <span>Inference Acceleration</span>
+                                            <span>Updated 5d ago</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="group relative bg-surface hover:bg-surface-2 rounded-[10px] p-space-sm border border-border transition-all cursor-pointer">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="flex flex-col min-w-0">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="font-card-title text-[15px] text-on-surface truncate">Orbit
+                                                        Compute</span>
+                                                    <span class="font-label text-[11px] text-muted">ORBT</span>
+                                                </div>
+                                                <span
+                                                    class="font-body-sm text-[12px] text-muted line-clamp-1 mt-0.5">Open-source
+                                                    developer migration slowing</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full font-micro text-micro tracking-wide uppercase bg-secondary/10 text-secondary border border-secondary/30 shrink-0">
+                                                Monitor
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-border/60">
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Urgency</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">44%</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Momentum</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">+6%</span>
+                                            </div>
+                                            <div class="flex flex-col text-right">
+                                                <span class="font-micro text-micro text-muted uppercase">Overlap</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">42%</span>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between mt-2 pt-1 font-micro text-[10px] text-muted">
+                                            <span>Managed DB Engine</span>
+                                            <span>Updated 2w ago</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="group relative bg-surface hover:bg-surface-2 rounded-[10px] p-space-sm border border-border transition-all cursor-pointer">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="flex flex-col min-w-0">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="font-card-title text-[15px] text-on-surface truncate">Helios
+                                                        Infrastructure</span>
+                                                    <span class="font-label text-[11px] text-muted">HLIO</span>
+                                                </div>
+                                                <span
+                                                    class="font-body-sm text-[12px] text-muted line-clamp-1 mt-0.5">Capital
+                                                    constraints limiting expansion</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full font-micro text-micro tracking-wide uppercase bg-secondary/10 text-secondary border border-secondary/30 shrink-0">
+                                                Monitor
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-border/60">
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Urgency</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">31%</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-micro text-micro text-muted uppercase">Momentum</span>
+                                                <span
+                                                    class="font-label text-[14px] text-tertiary font-semibold">-2%</span>
+                                            </div>
+                                            <div class="flex flex-col text-right">
+                                                <span class="font-micro text-micro text-muted uppercase">Overlap</span>
+                                                <span
+                                                    class="font-label text-[14px] text-on-surface font-semibold">35%</span>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between mt-2 pt-1 font-micro text-[10px] text-muted">
+                                            <span>Storage Fabrics</span>
+                                            <span>Updated 3w ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="p-space-md rounded-[20px] bg-surface-2 border border-border flex items-start gap-space-sm">
+                                <span
+                                    class="material-symbols-outlined text-[18px] text-[#f5c518] shrink-0 mt-0.5">lightbulb</span>
+                                <div class="flex flex-col gap-1">
+                                    <span
+                                        class="font-label text-micro text-[#f5c518] uppercase font-bold tracking-wider">Analytical
+                                        Directive</span>
+                                    <p class="font-body-sm text-body-sm text-text-soft">
+                                        Apex Grid velocity signals a targeted replacement campaign within Tier-1
+                                        accounts. Defensive hedging recommended before Q3 budget locks.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 flex flex-col gap-space-sm">
+                            <div
+                                class="bg-surface rounded-[20px] border border-border p-space-md flex flex-col relative overflow-hidden">
+                                <div
+                                    class="flex items-center justify-between pb-space-xs border-b border-border mb-space-sm">
+                                    <div class="flex flex-col">
+                                        <span class="font-card-title text-card-title text-on-surface">Pressure Bubble
+                                            Map</span>
+                                        <span class="font-micro text-micro text-muted">STRATEGIC OVERLAP VS. MOMENTUM
+                                            DELTA</span>
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-1.5 font-label text-micro text-muted bg-surface-2 px-2.5 py-1 rounded-full border border-border">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#f5c518]"></span>
+                                        Size: Market Impact
+                                    </div>
+                                </div>
+                                <div
+                                    class="relative w-full h-[470px] bg-surface-dim rounded-xl p-4 overflow-hidden border border-border/60 select-none">
+                                    <div class="absolute inset-0 grid grid-cols-2 grid-rows-2 pointer-events-none">
+                                        <div
+                                            class="border-r border-b border-border/40 p-2.5 flex items-start justify-start">
+                                            <span
+                                                class="font-micro text-[10px] text-muted/60 uppercase tracking-widest">Emerging
+                                                Disruptors</span>
+                                        </div>
+                                        <div
+                                            class="border-b border-border/40 p-2.5 flex items-start justify-end bg-[#f5c518]/5">
+                                            <span
+                                                class="font-micro text-[10px] text-[#f5c518] uppercase tracking-widest font-bold">Critical
+                                                Frontline</span>
+                                        </div>
+                                        <div class="border-r border-border/40 p-2.5 flex items-end justify-start">
+                                            <span
+                                                class="font-micro text-[10px] text-muted/60 uppercase tracking-widest">Distant
+                                                Perimeter</span>
+                                        </div>
+                                        <div class="p-2.5 flex items-end justify-end">
+                                            <span
+                                                class="font-micro text-[10px] text-muted/60 uppercase tracking-widest">Established
+                                                Coexistence</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="absolute left-10 right-4 top-1/2 h-px bg-border-strong/50 pointer-events-none">
+                                    </div>
+                                    <div
+                                        class="absolute top-4 bottom-8 left-1/2 w-px bg-border-strong/50 pointer-events-none">
+                                    </div>
+                                    <div
+                                        class="absolute left-2 top-4 bottom-8 flex flex-col justify-between items-center text-[10px] font-label text-muted pointer-events-none">
+                                        <span>+50%</span>
+                                        <span>+25%</span>
+                                        <span class="text-on-surface font-semibold">0%</span>
+                                        <span>-10%</span>
+                                    </div>
+                                    <div
+                                        class="absolute left-10 right-4 bottom-2 flex justify-between items-center text-[10px] font-label text-muted pointer-events-none">
+                                        <span>0%</span>
+                                        <span>25%</span>
+                                        <span>50%</span>
+                                        <span>75%</span>
+                                        <span>100%</span>
+                                    </div>
+                                    <div
+                                        class="absolute right-3 top-3 font-micro text-[9px] uppercase tracking-wider text-muted pointer-events-none">
+                                        Pressure Growth ↑
+                                    </div>
+                                    <div
+                                        class="absolute bottom-2 right-12 font-micro text-[9px] uppercase tracking-wider text-muted pointer-events-none">
+                                        Strategic Overlap →
+                                    </div>
+                                    <div
+                                        class="absolute top-[36%] left-[78%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                                        <span
+                                            class="absolute w-12 h-12 rounded-full border border-white/30 animate-ping"></span>
+                                        <span class="w-4 h-4 rounded-full bg-white border-2 border-[#0c0c0c]"></span>
+                                        <span
+                                            class="absolute -bottom-5 whitespace-nowrap font-label text-[11px] text-on-surface font-bold px-1.5 py-0.5 rounded bg-surface-2 border border-border">NOVA
+                                            (Baseline)</span>
+                                    </div>
+                                    <div
+                                        class="absolute top-[22%] left-[76%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer z-10">
+                                        <div
+                                            class="w-16 h-16 rounded-full bg-[#f5c518]/25 border-2 border-[#f5c518] shadow-[0_0_15px_rgba(245,197,24,0.3)] flex items-center justify-center hover:scale-105 transition-transform">
+                                            <span class="font-label text-micro text-[#f5c518] font-bold">APEX</span>
+                                        </div>
+                                        <div
+                                            class="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-surface-3 border border-[#f5c518]/60 px-2.5 py-1 rounded shadow-xl pointer-events-none z-20">
+                                            <span class="font-label text-[11px] text-on-surface font-medium"><strong
+                                                    class="text-[#f5c518]">Apex Grid:</strong> 88% Urgency • 78%
+                                                Overlap</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="absolute top-[14%] left-[54%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+                                        <div
+                                            class="w-12 h-12 rounded-full bg-warning/20 border-2 border-warning flex items-center justify-center hover:scale-105 transition-transform">
+                                            <span class="font-label text-[10px] text-warning font-bold">VCTR</span>
+                                        </div>
+                                        <div
+                                            class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-surface-3 border border-border px-2 py-0.5 rounded pointer-events-none transition-opacity">
+                                            <span class="font-label text-[10px] text-on-surface">Vector Labs: 71%
+                                                Urgency</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="absolute top-[52%] left-[42%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-tertiary/20 border border-tertiary flex items-center justify-center hover:scale-105 transition-transform">
+                                            <span class="font-label text-[10px] text-tertiary font-bold">ORBT</span>
+                                        </div>
+                                        <div
+                                            class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-surface-3 border border-border px-2 py-0.5 rounded pointer-events-none transition-opacity">
+                                            <span class="font-label text-[10px] text-on-surface">Orbit Compute: 44%
+                                                Urgency</span>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="absolute top-[68%] left-[34%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center hover:scale-105 transition-transform">
+                                            <span class="font-label text-[8px] text-secondary font-bold">HLIO</span>
+                                        </div>
+                                        <div
+                                            class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-surface-3 border border-border px-2 py-0.5 rounded pointer-events-none transition-opacity">
+                                            <span class="font-label text-[10px] text-on-surface">Helios Infra: 31%
+                                                Urgency</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center justify-between text-muted font-micro text-micro mt-space-sm pt-space-xs border-t border-border">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex items-center gap-1.5 text-on-surface"><span
+                                                class="w-2 h-2 rounded-full bg-[#f5c518]"></span> Critical threat</span>
+                                        <span class="flex items-center gap-1.5"><span
+                                                class="w-2 h-2 rounded-full bg-warning"></span> High velocity</span>
+                                        <span class="flex items-center gap-1.5"><span
+                                                class="w-2 h-2 rounded-full bg-tertiary"></span> Moderate</span>
+                                    </div>
+                                    <button
+                                        class="text-secondary hover:text-[#f5c518] underline font-label text-micro transition-colors">Recalibrate
+                                        matrix</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-3 flex flex-col gap-space-sm">
+                            <div
+                                class="bg-surface rounded-[20px] border border-border p-space-md flex flex-col gap-space-sm">
+                                <div class="flex flex-col gap-1 pb-space-sm border-b border-border">
+                                    <div class="flex items-center justify-between">
+                                        <span
+                                            class="px-2 py-0.5 rounded-full font-micro text-micro tracking-wide uppercase bg-[#f5c518]/15 text-[#f5c518] border border-[#f5c518]/40 font-bold">
+                                            Active Focus
+                                        </span>
+                                        <span class="font-label text-micro text-muted">HQ: Austin, TX</span>
+                                    </div>
+                                    <div class="flex items-baseline gap-2 mt-1">
+                                        <h2 class="font-card-title text-card-title text-on-surface">Apex Grid</h2>
+                                        <span class="font-label text-label text-[#f5c518] font-bold">APEX</span>
+                                    </div>
+                                    <span class="font-body-sm text-body-sm text-text-soft">Enterprise Cloud
+                                        Infrastructure</span>
+                                </div>
+                                <div class="flex flex-col gap-space-xs">
+                                    <span class="font-micro text-micro text-muted uppercase tracking-wider">Why It
+                                        Matters</span>
+                                    <p
+                                        class="font-body-sm text-body-sm text-on-surface bg-surface-2 p-space-sm rounded-lg border-l-2 border-[#f5c518] border-y border-r border-border leading-relaxed">
+                                        Apex is directly targeting NOVA's top 20 enterprise accounts with 30% discounted
+                                        multi-year cloud compute commitments.
+                                    </p>
+                                </div>
+                                <div class="flex flex-col gap-space-xs">
+                                    <span class="font-micro text-micro text-muted uppercase tracking-wider">Affected
+                                        Segments</span>
+                                    <div class="flex flex-col gap-1.5 font-label text-[11px]">
+                                        <div
+                                            class="flex items-center justify-between p-1.5 rounded bg-surface-dim border border-border/60">
+                                            <span class="text-on-surface">Compute Nodes</span>
+                                            <span class="text-[#f5c518] font-bold">HIGH EXPOSURE</span>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between p-1.5 rounded bg-surface-dim border border-border/60">
+                                            <span class="text-on-surface">Database Storage</span>
+                                            <span class="text-warning font-semibold">MEDIUM EXPOSURE</span>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between p-1.5 rounded bg-surface-dim border border-border/60">
+                                            <span class="text-on-surface">Managed Kubernetes</span>
+                                            <span class="text-muted font-semibold">LOW EXPOSURE</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-space-xs">
+                                    <span class="font-micro text-micro text-muted uppercase tracking-wider">Recent
+                                        Market Signals</span>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex flex-col gap-0.5 pl-2 border-l border-[#f5c518]/70">
+                                            <span
+                                                class="font-body-sm text-body-sm text-on-surface leading-tight">Secured
+                                                $450M Series D debt-facility for GPU cluster buildout</span>
+                                            <span class="font-micro text-[10px] text-muted">Yesterday • Bloomberg
+                                                Terminal</span>
+                                        </div>
+                                        <div class="flex flex-col gap-0.5 pl-2 border-l border-border-strong">
+                                            <span class="font-body-sm text-body-sm text-on-surface leading-tight">Hired
+                                                ex-NOVA VP of Enterprise Sales</span>
+                                            <span class="font-micro text-[10px] text-muted">4 days ago • Executive
+                                                Wire</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-space-xs pt-space-xs border-t border-border">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-micro text-micro text-muted uppercase tracking-wider">Share
+                                            Convergence (18m)</span>
+                                        <span class="font-label text-micro text-warning font-semibold">Delta:
+                                            -4.2%</span>
+                                    </div>
+                                    <div
+                                        class="w-full h-16 bg-surface-dim rounded-lg p-2 flex items-center justify-center border border-border/60 relative">
+                                        <svg class="w-full h-full text-[#f5c518]" fill="none" viewbox="0 0 200 40">
+                                            <path d="M0 32 C 40 28, 80 25, 120 18 C 160 12, 180 8, 200 4"
+                                                stroke="#f5c518" stroke-linecap="round" stroke-width="2.5"></path>
+                                            <path d="M0 8 C 40 10, 80 14, 120 18 C 160 22, 180 26, 200 30"
+                                                stroke="#8F877E" stroke-dasharray="3 3" stroke-width="1.5"></path>
+                                        </svg>
+                                        <span
+                                            class="absolute left-2 bottom-1 font-micro text-[9px] text-muted">Today</span>
+                                        <span
+                                            class="absolute right-2 top-1 font-micro text-[9px] text-[#f5c518] font-bold">+18
+                                            Months</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2 pt-space-xs">
+                                    <button
+                                        class="w-full py-2.5 px-space-md rounded-full bg-[#f5c518] hover:bg-[#e5b814] text-[#0c0c0c] font-label text-[13px] font-bold transition-all shadow-md text-center">
+                                        Compare Apex vs NOVA
+                                    </button>
+                                    <button
+                                        class="w-full py-2 px-space-md rounded-full bg-transparent hover:bg-surface-3 border border-border text-on-surface font-label text-label transition-colors text-center">
+                                        Add to Battle Radar
+                                    </button>
+                                </div>
+                                <div class="pt-space-xs border-t border-border">
+                                    <p class="font-micro text-[11px] text-muted leading-relaxed">
+                                        <strong class="text-text-soft">What is competitive urgency?</strong> Urgency
+                                        measures rate of change and strategic intent, not current revenue volume.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

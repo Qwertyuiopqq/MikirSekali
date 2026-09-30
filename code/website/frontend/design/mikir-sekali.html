@@ -95,6 +95,9 @@ table{width:100%;border-collapse:collapse;text-align:left;}
 th{padding:.75rem 1rem;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
 td{padding:1rem;border-bottom:1px solid var(--border);font-size:13px;}
 tr:hover td{background:var(--surface-3);}
+#ms-sent{transform-origin:right center;}
+.sent-flash{animation:sentflash .9s ease-out;}
+@keyframes sentflash{0%{transform:scale(1.18);filter:brightness(1.5);}100%{transform:none;filter:none;}}
 textarea,input.field{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;}
 </style>
 </head>
@@ -205,7 +208,7 @@ textarea,input.field{width:100%;background:var(--bg);border:1px solid var(--bord
     <div class="topbar-right">
       <div class="market-open"><span class="dot" style="background:var(--success);"></span>Markets Open</div>
       <img class="avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHrCalxjxQLuFgQyTjURfLvirHKqc99EMp-jzh4R7ujIqjBSheGlY4Rm__stK9_RHzBjJKYe3EwBaiKPEYTUfsi2R-LJ-QPfMBtzPXj-DOjd_q_8ENTvm59qwTQijjpfKnJsY9lwPWw8K9ljNAsSG0Hl6m98dQhLKZGfGmZ2Ir6DOVTD6mQ8dO2wSSUbL35b0sXE_gxEomsyviH0-3CVOquW3QdRbB1h8LR8NKwOMfyDciRxFIa2pLvQ" alt="profile"/>
-      <div class="profile"><div><div class="profile-name">Elena Vance</div><div class="profile-role">Lead Strategist</div></div></div>
+      <div class="profile"><div><div class="profile-name">Muhammad Rafif Yuvinza</div><div class="profile-role">Product Manager</div></div></div>
     </div>
   </header>
 
@@ -583,5 +586,6 @@ textarea,input.field{width:100%;background:var(--bg);border:1px solid var(--bord
   routeFromHash();
 })();
 </script>
+<script src="data.js"></script>
 </body>
 </html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_dashboard" name="shell-type" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main> :first-child {
+                margin-top: 0 !important;
+            }
+
+            main> :last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'primary-fixed': '#ffd9de', 'on-primary': '#660028', 'error': '#ffb4ab', 'error-container': '#93000a', 'on-secondary': '#31302d', 'surface-container-highest': '#373432', 'on-secondary-container': '#b7b5b0', 'on-surface': '#e8e1dd', 'secondary-fixed-dim': '#c9c6c1', 'info': '#9FB8D9', 'on-surface-variant': '#e0bec3', 'primary-fixed-dim': '#ffb1c0', 'surface-variant': '#373432', 'surface-3': '#27221E', 'surface': '#1B1815', 'tertiary-container': '#3f543f', 'on-error-container': '#ffdad6', 'warning': '#E5A54A', 'on-tertiary': '#213522', 'inverse-primary': '#b51d51', 'on-secondary-fixed-variant': '#474743', 'surface-container-high': '#2c2927', 'surface-dim': '#151311', 'on-tertiary-container': '#afc7ad', 'on-primary-fixed': '#3f0016', 'on-primary-container': '#ffa8b8', 'inverse-on-surface': '#33302d', 'primary-container': '#9e0142', 'text-soft': '#D2CDC6', 'surface-tint': '#ffb1c0', 'on-tertiary-fixed': '#0c200f', 'danger': '#FF6B6B', 'background': '#151311', 'surface-2': '#211D1A', 'secondary-container': '#474743', 'outline': '#a7898e', 'secondary': '#c9c6c1', 'surface-bright': '#3c3936', 'outline-variant': '#594044', 'inverse-surface': '#e8e1dd', 'tertiary': '#b5cdb2', 'border-strong': '#6B625A', 'on-error': '#690005', 'border': '#48423D', 'primary': '#ffb1c0', 'surface-container-low': '#1d1b19', 'surface-container-lowest': '#100e0c', 'on-primary-fixed-variant': '#90003b', 'tertiary-fixed-dim': '#b5cdb2', 'surface-container': '#211f1d', 'muted': '#8F877E', 'on-tertiary-fixed-variant': '#374c38', 'on-secondary-fixed': '#1c1c19', 'secondary-fixed': '#e5e2dd', 'on-background': '#e8e1dd', 'tertiary-fixed': '#d0e9ce' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'space-xl': '2rem', 'gutter-mobile': '0.75rem', 'space-xs': '0.25rem', 'margin': '1.5rem', 'gutter': '1rem', 'space-lg': '1.5rem', 'space-md': '1rem', 'space-sm': '0.5rem', 'margin-mobile': '1rem' }, fontFamily: { 'section-title': ['Work Sans'], 'label': ['JetBrains Mono'], 'metric-display': ['JetBrains Mono'], 'display': ['Work Sans'], 'page-title': ['Work Sans'], 'page-title-mobile': ['Work Sans'], 'card-title': ['Work Sans'], 'micro': ['JetBrains Mono'], 'body': ['Work Sans'], 'body-sm': ['Work Sans'], 'display-mobile': ['Work Sans'] }, fontSize: { 'section-title': ['20px', { lineHeight: '26px', letterSpacing: '-0.01em', fontWeight: '700' }], 'label': ['12px', { lineHeight: '16px', letterSpacing: '0.02em', fontWeight: '500' }], 'metric-display': ['32px', { lineHeight: '36px', letterSpacing: '-0.03em', fontWeight: '700' }], 'display': ['48px', { lineHeight: '48px', letterSpacing: '-0.02em', fontWeight: '700' }], 'page-title': ['32px', { lineHeight: '38px', letterSpacing: '-0.015em', fontWeight: '700' }], 'page-title-mobile': ['24px', { lineHeight: '30px', letterSpacing: '-0.01em', fontWeight: '700' }], 'card-title': ['16px', { lineHeight: '22px', fontWeight: '600' }], 'micro': ['10px', { lineHeight: '14px', letterSpacing: '0.04em', fontWeight: '500' }], 'body': ['14px', { lineHeight: '22px', fontWeight: '400' }], 'body-sm': ['12px', { lineHeight: '18px', fontWeight: '400' }], 'display-mobile': ['32px', { lineHeight: '36px', letterSpacing: '-0.02em', fontWeight: '700' }] } } } };</script>
+</head>
+
+<body
+    class="bg-background font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-surface">
+    <aside
+        class="fixed left-0 top-0 h-screen w-[230px] bg-surface-container-lowest flex flex-col justify-between z-40 border-r border-border select-none">
+        <div class="flex flex-col">
+            <div class="h-16 px-space-md flex items-center gap-space-sm border-b border-border">
+                <div
+                    class="w-9 h-9 rounded-lg bg-surface-container-high p-1 flex items-center justify-center shrink-0 border border-border">
+                    <img alt="Mikir Sekali Logo" class="w-full h-full object-contain"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwuxhntXg6E-BHQKYxUnidcLOSuMHgupiapd94pU6MhYu_6IaXYpu-sleRUGI_zqo_iX_PSaYDjmKS8Y2orUktpFRKzvFKTx4r7UloQRsQp7zFPp1Af6hWTvvqVVL2iAh6C3TLdUARxuh3M1HuL9BtUnjphLo9F_YN-bnFvsjvpRlvzIfnRLjQidAHpuPz72sqVqz60kejyCUklbSVGVxb8-00tLCzDYyX5Kyn2ZIV670AD8qRxPvCsvIfUZ3H7uO5CBw" />
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <div class="flex items-center gap-space-xs"><span
+                            class="font-card-title text-card-title text-on-surface tracking-tight truncate">Mikir
+                            Sekali</span><span
+                            class="px-1.5 py-0.5 rounded text-[9px] font-label uppercase bg-surface-2 text-primary-fixed-dim border border-border">PRO</span>
+                    </div><span class="font-micro text-[9px] text-muted truncate">Pikir Sekali, Langsung Akali</span>
+                </div>
+            </div>
+            <div class="px-space-md pt-space-md pb-space-xs"><span
+                    class="font-micro text-micro uppercase tracking-wider text-muted font-bold">Terminal Core</span>
+            </div>
+            <nav class="flex flex-col px-space-xs gap-0.5"
+                data-active-classes="bg-surface-2 text-on-surface border-l-2 border-primary-container pl-[14px] font-medium">
+                <a class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="overview" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">terminal</span><span
+                        class="truncate">Overview</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="decisions" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">explore</span><span
+                        class="truncate">Decisions</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="competitive-urgency" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">radar</span><span
+                        class="truncate">Competitive Urgency</span></a><a aria-current="page"
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded transition-colors bg-surface-2 text-on-surface border-l-2 border-primary-container pl-[14px] font-medium"
+                    data-path="battle-forecast" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-primary-container group-hover:text-on-surface transition-colors">trending_up</span><span
+                        class="truncate text-on-surface font-semibold">Battle Forecast</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="strategy-ai" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">memory</span><span
+                        class="truncate">Strategy AI</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="learn" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">menu_book</span><span
+                        class="truncate">Learn</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="watchlist" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">bookmark</span><span
+                        class="truncate">Watchlist</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="decision-journal" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">history</span><span
+                        class="truncate">Decision Journal</span></a><a
+                    class="group flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body text-body"
+                    data-path="settings" href="#"><span
+                        class="material-symbols-outlined text-[18px] text-muted group-hover:text-on-surface transition-colors">tune</span><span
+                        class="truncate">Settings</span></a></nav>
+        </div>
+        <div class="p-space-md border-t border-border bg-surface-container-lowest/80 flex flex-col gap-space-xs">
+            <div class="flex items-center justify-between"><span
+                    class="font-micro text-micro uppercase tracking-wider text-muted">Data Feeds</span><span
+                    class="inline-flex items-center gap-1.5 font-micro text-micro text-tertiary"><span
+                        class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>Active</span></div>
+            <div class="flex items-center justify-between font-label text-micro text-muted"><span
+                    class="">Updated</span><span class="text-on-surface font-label">14:32:08 UTC</span></div>
+            <div class="flex items-center justify-between font-label text-micro text-muted"><span
+                    class="">Engine</span><span class="text-on-surface font-label">Strategy-LLM v4.2</span></div>
+        </div>
+    </aside>
+    <div class="pl-[230px]">
+        <header
+            class="fixed top-0 left-[230px] right-0 h-16 bg-surface/90 backdrop-blur-md z-30 border-b border-border">
+            <div class="w-full h-full px-space-lg flex items-center justify-between gap-space-md">
+                <div class="flex items-center gap-space-md min-w-0 max-w-md">
+                    <div class="flex items-center gap-space-sm min-w-0"><span
+                            class="material-symbols-outlined text-[18px] text-primary-container shrink-0">insights</span><span
+                            class="font-body-sm text-body-sm text-on-surface font-medium truncate">Mikir Sekali:
+                            Strategic Matrix</span><span
+                            class="hidden xl:inline text-muted font-body-sm text-body-sm">•</span><span
+                            class="hidden xl:inline font-body-sm text-body-sm text-muted truncate">Pikir Sekali,
+                            Langsung Akali</span></div><span
+                        class="inline-flex items-center px-2 py-0.5 rounded-full font-micro text-micro tracking-wide uppercase bg-tertiary-container/30 text-tertiary border border-tertiary/30 shrink-0">SCAN
+                        COMPLETE</span>
+                </div>
+                <div class="flex-1 max-w-lg hidden md:block">
+                    <div class="relative flex items-center"><span
+                            class="material-symbols-outlined absolute left-3 text-[18px] text-muted pointer-events-none">search</span><input
+                            class="w-full h-9 pl-9 pr-14 rounded-full bg-surface-dim border border-border text-on-surface placeholder:text-muted font-body-sm text-body-sm focus:outline-none focus:border-border-strong transition-colors"
+                            placeholder="Search company, ticker, market, topic..." type="text" /><kbd
+                            class="absolute right-3 font-label text-micro px-1.5 py-0.5 rounded bg-surface-2 text-muted border border-border pointer-events-none">⌘K</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center gap-space-md shrink-0">
+                    <div
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 border border-border">
+                        <span class="w-2 h-2 rounded-full bg-tertiary"></span><span
+                            class="font-label text-micro uppercase tracking-wider text-tertiary font-bold">MARKETS
+                            OPEN</span></div><button
+                        class="p-1.5 rounded-lg text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                        type="button"><span
+                            class="material-symbols-outlined text-[20px]">notifications</span></button><a
+                        class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label text-label border border-border bg-surface-dim hover:bg-surface-2 hover:text-on-surface text-on-surface-variant transition-colors"
+                        data-path="learn" href="#"><span
+                            class="material-symbols-outlined text-[16px]">school</span><span class="">Learn</span></a>
+                    <div class="h-5 w-px bg-border"></div>
+                    <div class="flex items-center gap-space-sm"><img alt="Profile"
+                            class="w-8 h-8 rounded-full object-cover border border-border"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHrCalxjxQLuFgQyTjURfLvirHKqc99EMp-jzh4R7ujIqjBSheGlY4Rm__stK9_RHzBjJKYe3EwBaiKPEYTUfsi2R-LJ-QPfMBtzPXj-DOjd_q_8ENTvm59qwTQijjpfKnJsY9lwPWw8K9ljNAsSG0Hl6m98dQhLKZGfGmZ2Ir6DOVTD6mQ8dO2wSSUbL35b0sXE_gxEomsyviH0-3CVOquW3QdRbB1h8LR8NKwOMfyDciRxFIa2pLvQ" />
+                        <div class="hidden xl:flex flex-col"><span
+                                class="font-card-title text-[13px] leading-tight text-on-surface">Elena
+                                Vance</span><span class="font-micro text-micro text-muted">Lead Strategist</span></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="w-full pt-16 bg-background">
+            <div class="w-full max-w-[1360px] mx-auto p-space-lg min-h-[calc(100vh-4rem)]">
+                <div class="flex flex-col w-full">
+                    <div class="flex flex-col gap-space-lg pb-space-xl">
+                        <!-- Header Block -->
+                        <div class="flex flex-col gap-space-md">
+                            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
+                                <div>
+                                    <div class="flex items-center gap-space-xs mb-1">
+                                        <span
+                                            class="font-micro text-micro uppercase tracking-wider text-muted">Predictive
+                                            Modelling Engine</span>
+                                        <span class="text-muted font-micro">•</span>
+                                        <span
+                                            class="font-micro text-micro text-primary-fixed-dim uppercase tracking-wider">Model
+                                            Ref: BTL-8820-NC</span>
+                                    </div>
+                                    <h1 class="font-page-title text-page-title text-on-surface tracking-tight">Battle
+                                        forecast</h1>
+                                    <p class="font-body text-body text-text-soft mt-1">Scenario-based market outlook
+                                        across NOVA Systems and its most relevant competitors.</p>
+                                </div>
+                                <!-- System Confidence Meta Card -->
+                                <div
+                                    class="flex items-center gap-space-md bg-surface-2 px-space-md py-space-sm rounded-lg self-start lg:self-auto">
+                                    <div class="flex items-center gap-2">
+                                        <div class="relative flex items-center justify-center">
+                                            <span class="w-2 h-2 rounded-full bg-warning"></span>
+                                            <span
+                                                class="absolute w-3.5 h-3.5 rounded-full bg-warning/20 animate-ping"></span>
+                                        </div>
+                                        <span class="font-micro text-micro uppercase tracking-wider text-muted">Forecast
+                                            confidence:</span>
+                                        <span class="font-label text-label text-warning font-semibold">Moderate
+                                            (68%)</span>
+                                    </div>
+                                    <span class="w-px h-3.5 bg-surface-container-highest"></span>
+                                    <div class="flex items-center gap-1.5 font-micro text-micro text-tertiary">
+                                        <span class="material-symbols-outlined text-[14px]">sensors</span>
+                                        <span class="font-label text-label text-tertiary">Real-time Stream</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Controls Row: Segmented Filters & Metric Dimensions -->
+                            <div class="flex flex-wrap items-center justify-between gap-space-md pt-space-xs">
+                                <div class="flex flex-wrap items-center gap-space-md">
+                                    <!-- Time Horizons -->
+                                    <div class="flex items-center bg-surface-2 p-1 rounded-full">
+                                        <span
+                                            class="font-micro text-micro uppercase px-2 text-muted hidden sm:inline">Horizon</span>
+                                        <button
+                                            class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors"
+                                            type="button">1M</button>
+                                        <button
+                                            class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors"
+                                            type="button">3M</button>
+                                        <button
+                                            class="px-3.5 py-1 rounded-full font-label text-label bg-surface-3 text-on-surface shadow-sm font-semibold"
+                                            type="button">12M</button>
+                                        <button
+                                            class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors"
+                                            type="button">36M</button>
+                                    </div>
+                                    <!-- Scenario Selection -->
+                                    <div class="flex items-center bg-surface-2 p-1 rounded-full">
+                                        <span
+                                            class="font-micro text-micro uppercase px-2 text-muted hidden sm:inline">Scenario</span>
+                                        <button
+                                            class="px-3.5 py-1 rounded-full font-label text-label bg-surface-3 text-on-surface shadow-sm font-semibold flex items-center gap-1.5"
+                                            type="button">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim"></span>
+                                            Base Case
+                                        </button>
+                                        <button
+                                            class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors"
+                                            type="button">Upside</button>
+                                        <button
+                                            class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors"
+                                            type="button">Downside</button>
+                                    </div>
+                                    <!-- Metric Views -->
+                                    <div class="flex items-center bg-surface-2 p-1 rounded-full">
+                                        <button
+                                            class="px-3.5 py-1 rounded-full font-label text-label bg-surface-3 text-on-surface shadow-sm font-semibold"
+                                            type="button">Relative Performance</button>
+                                        <button
+                                            class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors"
+                                            type="button">Market Share</button>
+                                        <button
+                                            class="px-3 py-1 rounded-full font-label text-label text-muted hover:text-on-surface transition-colors"
+                                            type="button">Competitive Pressure</button>
+                                    </div>
+                                </div>
+                                <!-- Export & Lens Actions -->
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-2 text-muted hover:text-on-surface transition-colors font-label text-micro"
+                                        type="button">
+                                        <span class="material-symbols-outlined text-[16px]">tune</span>
+                                        Adjust Weights
+                                    </button>
+                                    <button
+                                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-2 text-muted hover:text-on-surface transition-colors font-label text-micro"
+                                        type="button">
+                                        <span class="material-symbols-outlined text-[16px]">ios_share</span>
+                                        Export Signal
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Main Visual Stage (2 Columns: 70% Chart / 30% Drivers) -->
+                        <div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+                            <!-- Chart Module: 70% Stage (Col Span 8 on XL) -->
+                            <div
+                                class="xl:col-span-8 bg-surface rounded-xl p-space-md lg:p-space-lg flex flex-col gap-space-md relative overflow-hidden">
+                                <!-- Chart Header & Legend -->
+                                <div
+                                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs">
+                                    <div class="flex items-center gap-space-sm">
+                                        <span class="font-card-title text-card-title text-on-surface">Probabilistic
+                                            Performance Matrix</span>
+                                        <span
+                                            class="font-label text-micro px-2 py-0.5 rounded bg-surface-container-high text-muted">INDEX
+                                            BASE = 100</span>
+                                    </div>
+                                    <!-- Color Key / Entity Legend -->
+                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-3.5 h-1 bg-primary-container rounded-full"></span>
+                                            <span class="font-label text-micro text-on-surface font-semibold">NOVA
+                                                (+18.4%)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-3.5 h-1 bg-warning rounded-full"></span>
+                                            <span class="font-label text-micro text-muted">Apex Grid (+24.1%)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-3.5 h-1 bg-tertiary rounded-full"></span>
+                                            <span class="font-label text-micro text-muted">Vector Labs (+12.3%)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-3.5 h-1 bg-muted rounded-full"></span>
+                                            <span class="font-label text-micro text-muted">Orbit Compute (+3.1%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- SVG Forecast Canvas Container -->
+                                <div
+                                    class="relative w-full h-[410px] bg-surface-2 rounded-lg p-2 select-none overflow-hidden">
+                                    <!-- Top Trajectory Zone Indicators -->
+                                    <div
+                                        class="absolute top-3 left-4 right-4 flex justify-between pointer-events-none z-10 font-label text-micro">
+                                        <span class="text-muted tracking-widest uppercase flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-muted"></span>
+                                            Observed Market State
+                                        </span>
+                                        <span
+                                            class="text-primary-fixed-dim tracking-widest uppercase flex items-center gap-1.5">
+                                            Bayesian Scenario Envelope (σ = 1.45)
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                                        </span>
+                                    </div>
+                                    <svg class="w-full h-full" fill="none" viewbox="0 0 860 380"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <lineargradient gradientunits="userSpaceOnUse" id="uncertaintyGradient"
+                                                x1="400" x2="840" y1="0" y2="0">
+                                                <stop offset="0%" stop-color="#f5c518" stop-opacity="0.05"></stop>
+                                                <stop offset="50%" stop-color="#f5c518" stop-opacity="0.16"></stop>
+                                                <stop offset="100%" stop-color="#f5c518" stop-opacity="0.26"></stop>
+                                            </lineargradient>
+                                            <lineargradient gradientunits="userSpaceOnUse" id="apexGradient" x1="400"
+                                                x2="840" y1="180" y2="100">
+                                                <stop offset="0%" stop-color="#E5A54A" stop-opacity="0.02"></stop>
+                                                <stop offset="100%" stop-color="#E5A54A" stop-opacity="0.12"></stop>
+                                            </lineargradient>
+                                            <radialgradient cx="620" cy="125" gradientunits="userSpaceOnUse"
+                                                id="radarPulse" r="45">
+                                                <stop offset="0%" stop-color="#f5c518" stop-opacity="0.4"></stop>
+                                                <stop offset="100%" stop-color="#f5c518" stop-opacity="0"></stop>
+                                            </radialgradient>
+                                        </defs>
+                                        <g opacity="0.15" stroke="#8F877E" stroke-dasharray="2 4">
+                                            <line x1="50" x2="840" y1="50" y2="50"></line>
+                                            <line x1="50" x2="840" y1="110" y2="110"></line>
+                                            <line x1="50" x2="840" y1="170" y2="170"></line>
+                                            <line x1="50" x2="840" y1="230" y2="230"></line>
+                                            <line x1="50" x2="840" y1="290" y2="290"></line>
+                                        </g>
+                                        <g class="font-label text-[10px]" fill="#8F877E"><text text-anchor="end" x="40"
+                                                y="54">+30%</text><text text-anchor="end" x="40"
+                                                y="114">+20%</text><text text-anchor="end" x="40"
+                                                y="174">+10%</text><text text-anchor="end" x="40" y="234">0.0%
+                                                (Base)</text><text text-anchor="end" x="40" y="294">-10%</text></g>
+                                        <rect fill="#151311" fill-opacity="0.4" height="306" width="440" x="400" y="24">
+                                        </rect>
+                                        <line opacity="0.6" stroke="#f5c518" stroke-dasharray="3 3" stroke-width="1.5"
+                                            x1="400" x2="400" y1="30" y2="330"></line>
+                                        <polygon fill="url(#uncertaintyGradient)"
+                                            points="400,160 520,110 650,75 840,42 840,240 650,210 520,185 400,160">
+                                        </polygon>
+                                        <circle cx="620" cy="122" fill="url(#radarPulse)" r="32"></circle>
+                                        <circle class="animate-pulse" cx="620" cy="122" fill="#f5c518" r="5"></circle>
+                                        <path d="M 60,230 L 170,226 L 285,224 L 400,221" fill="none" stroke="#8F877E"
+                                            stroke-width="1.75"></path>
+                                        <path d="M 400,221 L 510,219 L 620,216 L 730,214 L 840,212" fill="none"
+                                            stroke="#8F877E" stroke-dasharray="2 3" stroke-width="1.75"></path>
+                                        <circle cx="840" cy="212" fill="#8F877E" r="3"></circle><text
+                                            class="font-label text-[10px]" fill="#8F877E" x="846" y="215">+3.1%</text>
+                                        <path d="M 60,250 L 170,240 L 285,215 L 400,195" fill="none" stroke="#b5cdb2"
+                                            stroke-width="2"></path>
+                                        <path d="M 400,195 L 510,180 L 620,168 L 730,160 L 840,156" fill="none"
+                                            stroke="#b5cdb2" stroke-dasharray="4 4" stroke-width="2"></path>
+                                        <circle cx="840" cy="156" fill="#b5cdb2" r="3.5"></circle><text
+                                            class="font-label text-[10px]" fill="#b5cdb2" x="846" y="159">+12.3%</text>
+                                        <path d="M 60,210 L 170,205 L 285,185 L 400,170" fill="none" stroke="#E5A54A"
+                                            stroke-width="2.2"></path>
+                                        <path d="M 400,170 L 510,146 L 620,122 L 730,98 L 840,85" fill="none"
+                                            stroke="#E5A54A" stroke-dasharray="5 3" stroke-width="2.2"></path>
+                                        <circle cx="840" cy="85" fill="#E5A54A" r="4"></circle><text
+                                            class="font-label text-[11px] font-bold" fill="#E5A54A" x="846"
+                                            y="88">+24.1%</text>
+                                        <path d="M 60,190 L 170,175 L 285,162 L 400,152" fill="none" stroke="#f5c518"
+                                            stroke-width="3"></path>
+                                        <path d="M 400,152 L 510,142 L 620,128 L 730,123 L 840,120" fill="none"
+                                            stroke="#f5c518" stroke-dasharray="6 4" stroke-width="3"></path>
+                                        <circle cx="840" cy="120" fill="#f5c518" r="4.5"></circle><text
+                                            class="font-label text-[11px] font-bold" fill="#f5c518" x="846"
+                                            y="123">+18.4%</text>
+                                        <circle cx="400" cy="152" fill="#151311" r="5" stroke="#f5c518"
+                                            stroke-width="2"></circle>
+                                        <g transform="translate(520, 48)">
+                                            <rect fill="#1B1815" height="52" rx="4" stroke="#f5c518" stroke-width="1"
+                                                width="220" x="0" y="0"></rect>
+                                            <path d="M 100,52 L 100,70" stroke="#f5c518" stroke-dasharray="2 2"
+                                                stroke-width="1"></path>
+                                            <circle cx="100" cy="74" fill="#f5c518" r="2.5"></circle><text
+                                                class="font-micro text-[9px] font-bold uppercase tracking-wider"
+                                                fill="#f5c518" x="12" y="18">Critical Strategic Inflection</text><text
+                                                class="font-body text-[11px] font-medium" fill="#e8e1dd" x="12"
+                                                y="32">Convergence Point: Q3 2025</text><text
+                                                class="font-body text-[10px]" fill="#8F877E" x="12" y="44">Apex
+                                                challenges NOVA enterprise tier pricing</text>
+                                        </g>
+                                        <g class="font-label text-[10px]" fill="#8F877E"><text text-anchor="middle"
+                                                x="60" y="352">Q1 24</text><text text-anchor="middle" x="170" y="352">Q2
+                                                24</text><text text-anchor="middle" x="285" y="352">Q3 24</text>
+                                            <rect fill="#2c2927" height="20" rx="10" width="64" x="368" y="338"></rect>
+                                            <text class="font-semibold" fill="#f5c518" text-anchor="middle" x="400"
+                                                y="352">TODAY</text><text text-anchor="middle" x="510" y="352">Q1
+                                                25</text><text text-anchor="middle" x="620" y="352">Q2 25</text><text
+                                                text-anchor="middle" x="730" y="352">Q3 25</text><text
+                                                text-anchor="middle" x="830" y="352">Q4 25</text>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <!-- Metric Summary Chips Under Chart -->
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-space-sm pt-space-xs font-label">
+                                    <div class="p-space-sm bg-surface-2 rounded-lg">
+                                        <span class="text-micro uppercase text-muted block">Spread (NOVA vs Apex)</span>
+                                        <span class="text-body font-bold text-danger font-metric-display">-5.7
+                                            pts</span>
+                                        <span class="text-micro text-muted block mt-0.5">Compression ahead</span>
+                                    </div>
+                                    <div class="p-space-sm bg-surface-2 rounded-lg">
+                                        <span class="text-micro uppercase text-muted block">Max Historical Delta</span>
+                                        <span
+                                            class="text-body font-bold text-tertiary font-metric-display">+14.2%</span>
+                                        <span class="text-micro text-muted block mt-0.5">Q2 2024 recorded peak</span>
+                                    </div>
+                                    <div class="p-space-sm bg-surface-2 rounded-lg">
+                                        <span class="text-micro uppercase text-muted block">Implied Volatility</span>
+                                        <span class="text-body font-bold text-warning font-metric-display">18.4%</span>
+                                        <span class="text-micro text-muted block mt-0.5">High Q3-Q4 2025</span>
+                                    </div>
+                                    <div class="p-space-sm bg-surface-2 rounded-lg">
+                                        <span class="text-micro uppercase text-muted block">Telemetry Calibration</span>
+                                        <span
+                                            class="text-body font-bold text-on-surface font-metric-display">v4.2-Bayes</span>
+                                        <span class="text-micro text-tertiary block mt-0.5">Continuous ingestion</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right Panel: Key Forecast Drivers (30% Stage / Col Span 4 on XL) -->
+                            <div
+                                class="xl:col-span-4 bg-surface rounded-xl p-space-md lg:p-space-lg flex flex-col gap-space-md">
+                                <div class="flex items-center justify-between pb-space-xs">
+                                    <div>
+                                        <h2 class="font-card-title text-card-title text-on-surface">Key Forecast Drivers
+                                        </h2>
+                                        <span class="font-micro text-micro uppercase tracking-wider text-muted">Ranked
+                                            by System Impact Weight</span>
+                                    </div>
+                                    <span
+                                        class="px-2 py-0.5 rounded-full font-label text-micro bg-surface-2 text-text-soft">Rank
+                                        1–5</span>
+                                </div>
+                                <!-- Drivers List -->
+                                <div class="flex flex-col gap-space-sm">
+                                    <!-- Driver 1 -->
+                                    <div
+                                        class="p-3 bg-surface-2 rounded-lg flex flex-col gap-1.5 transition-colors hover:bg-surface-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-5 h-5 rounded flex items-center justify-center font-label text-micro bg-primary-container text-on-primary-fixed font-bold">1</span>
+                                                <span class="font-body text-body font-semibold text-on-surface">Pricing
+                                                    Power Friction</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded font-label text-micro bg-danger/10 text-danger border-0 font-medium">Impact:
+                                                High</span>
+                                        </div>
+                                        <p class="font-body-sm text-body-sm text-text-soft pl-7">
+                                            <span class="font-label text-danger font-semibold">-12% pressure</span> from
+                                            competitors' aggressive multi-tenant discounting tiers targeting Fortune 500
+                                            renewals.
+                                        </p>
+                                    </div>
+                                    <!-- Driver 2 -->
+                                    <div
+                                        class="p-3 bg-surface-2 rounded-lg flex flex-col gap-1.5 transition-colors hover:bg-surface-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-5 h-5 rounded flex items-center justify-center font-label text-micro bg-surface-container-highest text-on-surface font-bold">2</span>
+                                                <span
+                                                    class="font-body text-body font-semibold text-on-surface">Enterprise
+                                                    Demand Wave</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded font-label text-micro bg-tertiary/10 text-tertiary border-0 font-medium">Impact:
+                                                High</span>
+                                        </div>
+                                        <p class="font-body-sm text-body-sm text-text-soft pl-7">
+                                            <span class="font-label text-tertiary font-semibold">+18% sustained</span>
+                                            AI compute infrastructure procurement tailwind, locking in long-term
+                                            enterprise capacity contracts.
+                                        </p>
+                                    </div>
+                                    <!-- Driver 3 -->
+                                    <div
+                                        class="p-3 bg-surface-2 rounded-lg flex flex-col gap-1.5 transition-colors hover:bg-surface-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-5 h-5 rounded flex items-center justify-center font-label text-micro bg-surface-container-highest text-on-surface font-bold">3</span>
+                                                <span class="font-body text-body font-semibold text-on-surface">Margin
+                                                    Pressure &amp; Co-Lo Costs</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded font-label text-micro bg-warning/10 text-warning border-0 font-medium">Impact:
+                                                Moderate</span>
+                                        </div>
+                                        <p class="font-body-sm text-body-sm text-text-soft pl-7">
+                                            Energy and global colocation hosting costs rising <span
+                                                class="font-label text-warning font-semibold">4.2% YoY</span>,
+                                            marginally diluting gross operational margins.
+                                        </p>
+                                    </div>
+                                    <!-- Driver 4 -->
+                                    <div
+                                        class="p-3 bg-surface-2 rounded-lg flex flex-col gap-1.5 transition-colors hover:bg-surface-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-5 h-5 rounded flex items-center justify-center font-label text-micro bg-surface-container-highest text-on-surface font-bold">4</span>
+                                                <span class="font-body text-body font-semibold text-on-surface">New
+                                                    Entrant Architecture</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded font-label text-micro bg-info/10 text-info border-0 font-medium">Impact:
+                                                Moderate</span>
+                                        </div>
+                                        <p class="font-body-sm text-body-sm text-text-soft pl-7">
+                                            Vector Labs open-weight runtime optimized for commodity clusters induces
+                                            downward pricing drift on legacy NOVA v3 nodes.
+                                        </p>
+                                    </div>
+                                    <!-- Driver 5 -->
+                                    <div
+                                        class="p-3 bg-surface-2 rounded-lg flex flex-col gap-1.5 transition-colors hover:bg-surface-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-5 h-5 rounded flex items-center justify-center font-label text-micro bg-surface-container-highest text-on-surface font-bold">5</span>
+                                                <span class="font-body text-body font-semibold text-on-surface">Titan
+                                                    Architecture Rollout</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded font-label text-micro bg-tertiary/10 text-tertiary border-0 font-medium">Impact:
+                                                High</span>
+                                        </div>
+                                        <p class="font-body-sm text-body-sm text-text-soft pl-7">
+                                            NOVA Next-Gen Titan Compute deployment scheduled for <span
+                                                class="font-label text-on-surface font-semibold">Q2 2025</span>;
+                                            historically catalyses 22%+ contract upsell cycles.
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- Methodology Accordion / Link Anchor -->
+                                <div class="pt-space-xs mt-auto">
+                                    <a class="group flex items-center justify-between p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors"
+                                        href="#">
+                                        <div class="flex items-center gap-2">
+                                            <span
+                                                class="material-symbols-outlined text-[18px] text-primary-fixed-dim">function</span>
+                                            <span
+                                                class="font-label text-label text-text-soft group-hover:text-on-surface">View
+                                                calculation weights &amp; Bayesian simulation logic</span>
+                                        </div>
+                                        <span
+                                            class="material-symbols-outlined text-[16px] text-muted group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Scenario Cards Grid (3 Equal Columns) -->
+                        <div class="flex flex-col gap-space-sm pt-space-xs">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <h2 class="font-section-title text-section-title text-on-surface">Probability
+                                        Scenario Matrix</h2>
+                                    <span class="font-micro text-micro text-muted">Monte Carlo Iterations:
+                                        n=10,000</span>
+                                </div>
+                                <span class="font-label text-micro text-muted">Sum: 100% Normalized</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+                                <!-- Scenario 1: Base Case (60% Probability) -->
+                                <div
+                                    class="bg-surface rounded-xl p-space-md flex flex-col justify-between gap-space-md relative overflow-hidden">
+                                    <!-- Active Highlight Accent Edge -->
+                                    <div class="absolute top-0 left-0 right-0 h-1 bg-primary-container"></div>
+                                    <div class="flex flex-col gap-space-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-primary-fixed-dim"></span>
+                                                <span class="font-card-title text-card-title text-on-surface">Base
+                                                    Case</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full font-label text-label bg-primary-container/20 text-primary-fixed font-bold">
+                                                60% Probability
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="bg-surface-2 p-2.5 rounded-lg flex items-baseline justify-between mt-1">
+                                            <span class="font-micro text-micro uppercase text-muted">Trajectory
+                                                Expectation</span>
+                                            <span class="font-label text-label font-bold text-tertiary">Moderate Growth
+                                                (+14% to +18%)</span>
+                                        </div>
+                                        <!-- Detail Breakdown -->
+                                        <div class="space-y-3 pt-1">
+                                            <div>
+                                                <span
+                                                    class="font-micro text-micro uppercase tracking-wider text-muted block mb-0.5">Key
+                                                    Assumption</span>
+                                                <p class="font-body-sm text-body-sm text-on-surface leading-snug">
+                                                    NOVA maintains <strong class="text-tertiary">88%+ enterprise renewal
+                                                        rate</strong> despite Apex Grid aggressive price-slashing in
+                                                    mid-tier enterprise segments.
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span
+                                                    class="font-micro text-micro uppercase tracking-wider text-danger block mb-0.5">Invalidating
+                                                    Signal</span>
+                                                <p class="font-body-sm text-body-sm text-text-soft leading-snug">
+                                                    If enterprise churn exceeds <span
+                                                        class="font-label text-on-surface font-semibold">4.5%</span> in
+                                                    Q1 2025 earnings or Apex secures two Tier-1 banks.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="pt-space-xs border-t border-surface-container-highest flex items-center justify-between font-label text-micro">
+                                        <span class="text-muted">Uncertainty Envelope:</span>
+                                        <span class="px-2 py-0.5 rounded bg-surface-2 text-text-soft">Low to
+                                            Moderate</span>
+                                    </div>
+                                </div>
+                                <!-- Scenario 2: Upside Case (25% Probability) -->
+                                <div
+                                    class="bg-surface rounded-xl p-space-md flex flex-col justify-between gap-space-md relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 right-0 h-1 bg-tertiary"></div>
+                                    <div class="flex flex-col gap-space-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+                                                <span class="font-card-title text-card-title text-on-surface">Upside
+                                                    Case</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full font-label text-label bg-tertiary/10 text-tertiary font-bold">
+                                                25% Probability
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="bg-surface-2 p-2.5 rounded-lg flex items-baseline justify-between mt-1">
+                                            <span class="font-micro text-micro uppercase text-muted">Trajectory
+                                                Expectation</span>
+                                            <span class="font-label text-label font-bold text-tertiary">Accelerated
+                                                Outperformance (+28% to +35%)</span>
+                                        </div>
+                                        <!-- Detail Breakdown -->
+                                        <div class="space-y-3 pt-1">
+                                            <div>
+                                                <span
+                                                    class="font-micro text-micro uppercase tracking-wider text-muted block mb-0.5">Key
+                                                    Assumption</span>
+                                                <p class="font-body-sm text-body-sm text-on-surface leading-snug">
+                                                    Next-gen Titan Architecture delivers <strong
+                                                        class="text-tertiary">2x energy efficiency</strong>,
+                                                    neutralizing commodity competitor pricing advantages entirely.
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span
+                                                    class="font-micro text-micro uppercase tracking-wider text-danger block mb-0.5">Invalidating
+                                                    Signal</span>
+                                                <p class="font-body-sm text-body-sm text-text-soft leading-snug">
+                                                    Semiconductor fab partner packaging delays extend beyond <span
+                                                        class="font-label text-on-surface font-semibold">June
+                                                        2025</span>, bottlenecking hardware shipment.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="pt-space-xs border-t border-surface-container-highest flex items-center justify-between font-label text-micro">
+                                        <span class="text-muted">Uncertainty Envelope:</span>
+                                        <span class="px-2 py-0.5 rounded bg-surface-2 text-warning">Moderate</span>
+                                    </div>
+                                </div>
+                                <!-- Scenario 3: Downside Case (15% Probability) -->
+                                <div
+                                    class="bg-surface rounded-xl p-space-md flex flex-col justify-between gap-space-md relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 right-0 h-1 bg-danger"></div>
+                                    <div class="flex flex-col gap-space-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-danger"></span>
+                                                <span class="font-card-title text-card-title text-on-surface">Downside
+                                                    Case</span>
+                                            </div>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full font-label text-label bg-danger/10 text-danger font-bold">
+                                                15% Probability
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="bg-surface-2 p-2.5 rounded-lg flex items-baseline justify-between mt-1">
+                                            <span class="font-micro text-micro uppercase text-muted">Trajectory
+                                                Expectation</span>
+                                            <span class="font-label text-label font-bold text-danger">Margin Compression
+                                                (+2% to -6%)</span>
+                                        </div>
+                                        <!-- Detail Breakdown -->
+                                        <div class="space-y-3 pt-1">
+                                            <div>
+                                                <span
+                                                    class="font-micro text-micro uppercase tracking-wider text-muted block mb-0.5">Key
+                                                    Assumption</span>
+                                                <p class="font-body-sm text-body-sm text-on-surface leading-snug">
+                                                    Multi-front price war initiates across Europe and US East,
+                                                    compelling NOVA to unilaterally discount tier pricing by <strong
+                                                        class="text-danger">25%</strong>.
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span
+                                                    class="font-micro text-micro uppercase tracking-wider text-tertiary block mb-0.5">Invalidating
+                                                    Signal</span>
+                                                <p class="font-body-sm text-body-sm text-text-soft leading-snug">
+                                                    Apex Grid fails to obtain critical <span
+                                                        class="font-label text-on-surface font-semibold">Tier-1
+                                                        enterprise SOC3/FedRAMP</span> regulatory clearances.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="pt-space-xs border-t border-surface-container-highest flex items-center justify-between font-label text-micro">
+                                        <span class="text-muted">Uncertainty Envelope:</span>
+                                        <span class="px-2 py-0.5 rounded bg-surface-2 text-danger">Elevated</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Mandatory Stoic Footer Note -->
+                        <div class="flex items-center justify-between p-space-md rounded-lg bg-surface-dim">
+                            <div class="flex items-center gap-space-sm">
+                                <span
+                                    class="material-symbols-outlined text-[18px] text-muted shrink-0">verified_user</span>
+                                <p class="font-body-sm text-body-sm text-muted">
+                                    Forecasts are scenario signals based on available evidence, not guarantees. Updated
+                                    continuously as market intelligence ingests new data.
+                                </p>
+                            </div>
+                            <span class="font-label text-micro text-muted uppercase hidden md:inline tracking-wider">SEC
+                                Compliant Analytical Standard</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
