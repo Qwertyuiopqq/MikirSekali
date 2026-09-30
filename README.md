@@ -4,7 +4,7 @@ Ini khusus bagian development metode, model AI
 *   **Package Manager:** `pip`
 
 # Introduction
-A website of decision thinking machine for helping investor and business owners in preparing strategy
+Mikir Sekali is a website to help Investors and business owners decide their strategy when they don’t have much information on Market Intelligence.
 
 Pitching Deck: https://canva.link/ndw3ggxcxwre0fj
 
