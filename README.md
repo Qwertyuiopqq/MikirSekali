@@ -9,7 +9,7 @@ Mikir Sekali is a website to help Investors and business owners decide their str
 Pitching Deck: https://canva.link/ndw3ggxcxwre0fj
 
 # Pipeline
-![Flowchart](image/Algoritma.png)
+![Flowchart](image/Backend_Process.png)
 
 # Training
 
