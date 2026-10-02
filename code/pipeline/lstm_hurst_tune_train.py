@@ -445,8 +445,7 @@ print(summary_df.to_string(index=False))
 
 n_ok = int((summary_df["status"] == "OK").sum())
 zip_path = shutil.make_archive(EXPORT_ROOT, "zip", root_dir=".", base_dir=EXPORT_ROOT)
-print(f"\n📥 Mengunduh {zip_path} ({n_ok}/{len(datasets)} model)...")
-files.download(zip_path)
+
 
 print("\n🎉 Ekstrak zip ke folder `models/` proyek, sehingga strukturnya:")
 print("   models/LSTMwithHurst/<PERUSAHAAN>/best_lstm_hurst_model.pth")
