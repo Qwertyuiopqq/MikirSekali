@@ -23,9 +23,10 @@ Google Colab between two local runs.
                MCS_features.csv                              -> MCS_predict.csv
       Stage 5b: per-company LSTM-Hurst breakout probability (optional)
       Stage 5c: support/resistance lines + Hurst regime (optional)
-      Stage 6: fuzzy health score on PREDICTED data, merged
-               side-by-side with the REAL score computed in
-               Stage 3                                        -> MCS_health.csv
+      Stage 6: fuzzy health scores (REAL + PREDICTED, both
+               recomputed here with the current formulas)    -> MCS_health.csv
+               The file is written to `Paths.mcs_health_csv_path`
+               in config.py -- the same place website/server.py reads.
 
     python pipeline.py all   runs prepare then score back-to-back --
     only useful once the models already exist locally (e.g. re-running
@@ -43,6 +44,7 @@ Any Paths field in config.py can be overridden with a matching --flag
 import argparse
 import dataclasses
 import sys
+from pathlib import Path
 
 try:
     from . import config
@@ -116,12 +118,29 @@ def run_prepare(paths: config.Paths) -> dict:
 # ---------------------------------------------------------------------------
 # Phase 2: LOCAL, after downloading trained models from Colab
 # ---------------------------------------------------------------------------
+def _print_scoring_summary(df_health: pd.DataFrame, fuzzy_sys: BusinessHealthFuzzySystem, has_breakout: bool):
+    """Shows which fuzzy components actually carried signal, so nothing is silently scored as noise."""
+    mode = "predict_breakout" if has_breakout else "predict"
+    memb = fuzzy_sys.memberships(df_health, mode, config.PREDICTION_COLUMN,
+                                 "breakout_probability" if has_breakout else None)
+    n = len(memb)
+    print(f"   Komponen yang membawa sinyal (dari {n} baris; sisanya dikeluarkan & bobot dinormalisasi ulang):")
+    for c in memb.columns:
+        print(f"     - {c:<10}: {int(memb[c].notna().sum()):>6}/{n} baris")
+    if "sentiment_is_mock" in df_health.columns and df_health["sentiment_is_mock"].astype(bool).all():
+        print("   ⚠️ Sentimen di dataset ini MOCK (acak) karena file sentimen asli tidak ada -> komponen sentimen "
+              "TIDAK dihitung dalam skor.\n"
+              f"      Sediakan {config.Paths().sentiment_scores_csv} (mis. via `python website/sentiment_trigger.py "
+              "--save-csv`) lalu jalankan `prepare` + `score` lagi.")
+    if not has_breakout:
+        print("   -> breakout_probability tidak tersedia (belum ada model LSTM-Hurst) -> komponen breakout tidak dihitung.")
+
+
 def run_score(paths: config.Paths) -> dict:
     """Stages 5-6: XGBoost prediction -> combined real+predicted health table."""
     fuzzy_sys = BusinessHealthFuzzySystem()
 
     features_path = paths.output_path(paths.mcs_features_csv)
-    report_path = paths.output_path(paths.mcs_report_csv)
     try:
         df_features = pd.read_csv(features_path, parse_dates=["Date"])
     except FileNotFoundError:
@@ -146,41 +165,19 @@ def run_score(paths: config.Paths) -> dict:
     df_predict.to_csv(predict_out, index=False)
     print(f"✅ MCS_predict disimpan di: {predict_out}  ({len(df_predict)} baris)")
 
-    print("\n=== STAGE 6/6: Menggabungkan skor REAL + PREDICTED -> MCS_health ===")
-    df_health = df_predict.copy()
-    if has_breakout:
-        score_breakout = fuzzy_sys.calculate_health_score(
-            df_health, mode="predict_breakout",
-            xgb_col=config.PREDICTION_COLUMN, breakout_col="breakout_probability",
-        )
-        score_plain = fuzzy_sys.calculate_health_score(
-            df_health, mode="predict", xgb_col=config.PREDICTION_COLUMN
-        )
-        # Row-level fallback: with one LSTM per company, some companies (or the first
-        # ~90 days of each) can lack a breakout_probability. Scoring those rows with the
-        # breakout weight would treat "no signal" as "0% breakout" and drag them down,
-        # so they get the plain 'predict' formula instead.
-        has_bp = df_health["breakout_probability"].notna().to_numpy()
-        df_health["health_score_predict"] = np.where(has_bp, score_breakout, score_plain)
-        print(f"   -> breakout_probability dipakai di {int(has_bp.sum())}/{len(has_bp)} baris "
-              f"(mode='predict_breakout'); sisanya memakai mode='predict' (tanpa komponen breakout).")
-    else:
-        df_health["health_score_predict"] = fuzzy_sys.calculate_health_score(
-            df_health, mode="predict", xgb_col=config.PREDICTION_COLUMN
-        )
-        print("   -> breakout_probability tidak tersedia (belum ada model LSTM-Hurst per perusahaan) "
-              "-> health_score_predict dihitung tanpa komponen breakout (mode='predict', seperti sebelumnya).")
+    print("\n=== STAGE 6/6: Menghitung skor REAL + PREDICTED (fuzzy) -> MCS_health ===")
+    # One call scores both columns with the SAME code website/server.py uses, and adds the
+    # helper columns (xgb_applicable, xgb_norm, sr_break_up, sr_hit_support) so every number
+    # on the website can be traced back to a column in this file.
+    if "sentiment_is_mock" not in df_predict.columns:
+        # MCS_features.csv written before enrichment.py flagged its sentiment: it is the random mock
+        # unless the real sentiment file exists (same rule website/server.py applies to an old CSV).
+        df_predict["sentiment_is_mock"] = not Path(paths.resolve(paths.sentiment_scores_csv)).exists()
+    df_health = fuzzy_sys.score_frame(df_predict)
+    _print_scoring_summary(df_health, fuzzy_sys, has_breakout)
 
-    # Bring health_score_real back in (computed in Stage 3) so the final
-    # table lets you compare actual vs. predicted health side-by-side.
-    try:
-        df_report = pd.read_csv(report_path, parse_dates=["Date"])
-        real_scores = df_report[["Date", "symbol", "health_score_real"]]
-        df_health = pd.merge(df_health, real_scores, on=["Date", "symbol"], how="left")
-    except FileNotFoundError:
-        print(f"   ⚠️ {report_path} tidak ditemukan, MCS_health hanya akan berisi health_score_predict.")
-
-    health_out = paths.output_path(paths.mcs_health_csv)
+    health_out = Path(paths.health_csv())          # location is set in config.py (mcs_health_csv_path)
+    health_out.parent.mkdir(parents=True, exist_ok=True)
     df_health.to_csv(health_out, index=False)
     print(f"✅ MCS_health disimpan di: {health_out}  ({len(df_health)} baris)")
 

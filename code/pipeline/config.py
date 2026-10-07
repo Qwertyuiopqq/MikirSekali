@@ -9,6 +9,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
 
+# Folder this file lives in (= pipeline/). Relative paths in `Paths.health_csv()` / `Paths.resolve()`
+# are anchored here, so they mean the same thing no matter which folder you launch Python from.
+_PIPELINE_DIR = Path(__file__).resolve().parent
+
 
 @dataclass
 class Paths:
@@ -54,9 +58,30 @@ class Paths:
     mcs_predict_csv: str = "MCS_predict.csv"  # Stage 5: features + XGBoost prediction
     mcs_health_csv: str = "MCS_health.csv"    # Stage 6: predict + health_score_real + health_score_predict
 
+    # ---- WHERE MCS_health.csv LIVES ---------------------------------------
+    # >>> EDIT THIS LINE to the real location of your MCS_health.csv. <<<
+    # It is the single place that decides the file for BOTH ends:
+    #   * `python pipeline.py score` WRITES the final health table here, and
+    #   * `website/server.py` READS (and serves) it from here.
+    # Absolute path, or relative to this pipeline/ folder (e.g. "../../data/output/MCS_health.csv").
+    # Leave it "" to fall back to <output_folder>/<mcs_health_csv> (the old behaviour).
+    # CLI override: --mcs-health-csv-path <path>   (server.py also still accepts --csv <path>)
+    mcs_health_csv_path: str = "../../data/output/MCS_health.csv"
+
     def output_path(self, filename: str) -> str:
         Path(self.output_folder).mkdir(parents=True, exist_ok=True)
         return str(Path(self.output_folder) / filename)
+
+    def resolve(self, p: str) -> str:
+        """Absolute form of a path from this class (relative ones are anchored at pipeline/)."""
+        q = Path(p).expanduser()
+        if not q.is_absolute():
+            q = _PIPELINE_DIR / q
+        return str(q.resolve())
+
+    def health_csv(self) -> str:
+        """Absolute path of MCS_health.csv -- see `mcs_health_csv_path` above."""
+        return self.resolve(self.mcs_health_csv_path or str(Path(self.output_folder) / self.mcs_health_csv))
 
 
 # Feature columns fed into the XGBoost volume model.
@@ -93,6 +118,40 @@ FUZZY_WEIGHTS_PREDICT_BREAKOUT = {
     "xgboost": 0.30,
     "breakout": 0.20,
 }
+
+# --- How the five fuzzy components are fed (see fuzzy_system.py) --------------------------------
+# Missing-signal rule: a component with no signal on a row (NaN / not applicable) is LEFT OUT of that
+# row's score and the remaining weights are renormalised, instead of being scored as 0 or 1.
+#
+# 1) SENTIMENT. enrichment.py invents RANDOM sentiment when news_sentiment.csv is missing; that noise
+#    must not move a health score. False = rows flagged `sentiment_is_mock` leave the sentiment
+#    component out. True = score on the noise anyway (old behaviour; only sensible for UI demos).
+SCORE_USES_MOCK_SENTIMENT = False
+
+# 2) XGBOOST volume outlook = "will volume rise or fall?". The raw forecast LEVEL is not comparable to actual
+#    volume (on the 10-company dataset the model runs ~2x low, and by a different amount on each weekday), so a
+#    forecast is judged against the model's OWN earlier forecasts for the same weekday:
+#      ratio = forecast / median(the last XGB_NORM_WINDOW forecasts made on the same weekday)
+#      ratio == 1 -> 0.5 (no change) | ratio >= FULL_SCALE -> 1.0 (rising) | ratio <= 1/FULL_SCALE -> 0.0 (falling)
+#    Rows where the forecast is about a non-trading day (Fri/Sat -> weekend, Sun/holiday rows) have no usable
+#    outlook and are left out of the score. 8 weeks / 4x: on the dataset the membership then averages 0.48 on every
+#    weekday and is pinned at 0/1 on ~7% of rows (with a 4-week window and 2.5x it was 12-17%).
+XGB_NORM_WINDOW = 8
+XGB_NORM_MIN_PERIODS = 3
+XGB_FULL_SCALE_RATIO = 4.0
+
+# 3) BREAKOUT = LSTM-Hurst x support/resistance, SIGNED (0.5 = neutral):
+#      price broke resistance -> + (LSTM breakout probability x Hurst trend-persistence)
+#      price hit support      -> - ((1 - breakout probability) x Hurst trend-persistence)
+#    "Hurst trend-persistence" = (H - SR_HURST_MEAN_REVERTING) / (SR_HURST_TRENDING - SR_HURST_MEAN_REVERTING)
+#    clipped to 0..1: mean-reverting regime -> 0 (levels hold, no credit/penalty), trending -> 1 (levels give way).
+#    The nearest S/R line is only ~3-4% from price, so a "hit" on ANY line fires on a quarter of all days (on the
+#    10-company dataset: 3 touches -> a support hit is "active" on 29% of trading days, 4 touches -> 16%, 5 -> 9%).
+#    Events therefore only count for levels touched at least SR_SIGNAL_MIN_TOUCHES times (or the 1-year extreme).
+SR_SIGNAL_MIN_TOUCHES = 4
+SR_TOUCH_TOL = 0.0         # "hit support": today's Low <= yesterday's support line * (1 + this)
+SR_BREAK_MARGIN = 0.0      # "broke resistance": today's Close > yesterday's resistance line * (1 + this)
+SR_EVENT_PERSIST_DAYS = 3  # an event fades linearly over this many trading days (1.0, 0.67, 0.33, then gone)
 
 # Per-company LSTM-Hurst artifact filenames (inside <lstm_hurst_model_path>/<COMPANY>/).
 LSTM_MODEL_FILENAME = "best_lstm_hurst_model.pth"

@@ -100,6 +100,7 @@ def _add_sentiment(df_master: pd.DataFrame, sentiment_csv_path: str, seed: int) 
                 df_master.loc[missing_mask, "daily_news_sentiment"] = 0.0
                 df_master.loc[missing_mask, "daily_news_count"] = 0
 
+            df_master["sentiment_is_mock"] = False   # real scores; rows without news = 0 / count 0 (the fuzzy score treats count 0 as "no news", not as neutral)
             print(f"   ✅ Sentimen asli berhasil digabungkan ({len(df_real_sent)} baris sumber).")
             return df_master
         except Exception as e:
@@ -110,6 +111,12 @@ def _add_sentiment(df_master: pd.DataFrame, sentiment_csv_path: str, seed: int) 
     df_master = df_master.copy()
     df_master["daily_news_sentiment"] = df_master.apply(_generate_mock_sentiment, axis=1)
     df_master["daily_news_count"] = np.random.randint(0, 15, size=len(df_master))
+    # This is random noise, NOT news. Flag it so the fuzzy health score leaves the sentiment
+    # component out (config.SCORE_USES_MOCK_SENTIMENT) and the website shows "No data" instead of
+    # a made-up number. The column is NOT an XGBoost feature (config.XGBOOST_FEATURES is explicit).
+    df_master["sentiment_is_mock"] = True
+    print("   ⚠️ PERINGATAN: sentimen & jumlah berita pada dataset ini ACAK (mock), bukan hasil BERT. "
+          "Isi file sentimen asli agar komponen sentimen ikut dihitung.")
     return df_master
 
 

@@ -15,10 +15,12 @@ How the pieces fit together
   * REGIME (Hurst exponent)     -> `sr_regime`, read from the
                                    `hurst_exponent` column that
                                    lstm_hurst_predictor.py already computed:
-                                   H >= 0.55 "trending" (levels break more
-                                   easily), H <= 0.45 "mean_reverting"
-                                   (levels tend to hold), otherwise
-                                   "random". "unknown" if no Hurst column.
+                                   H >= config.SR_HURST_TRENDING "trending"
+                                   (levels break more easily),
+                                   H <= config.SR_HURST_MEAN_REVERTING
+                                   "mean_reverting" (levels tend to hold),
+                                   otherwise "random". "unknown" if no Hurst
+                                   column.
 
 So every row ends up with: the two nearest lines around today's Close,
 how many times each was touched (strength), the market regime, and the
@@ -54,6 +56,20 @@ Adds columns (rows are never dropped, NaN while there is too little history):
     sr_support_touches, sr_resistance_touches
     sr_dist_to_support_pct, sr_dist_to_resistance_pct   (fraction of Close)
     sr_regime
+    sr_break_up, sr_hit_support                         (events, see below)
+
+Events (`add_sr_events`) -- what the fuzzy system's signed breakout component needs
+------------------------------------------------------------------------------------
+By construction Close always sits BETWEEN the two lines of its own row, so "price broke
+resistance" can only be seen against the lines as they were YESTERDAY (known at yesterday's
+close -> no look-ahead):
+    broke resistance : today's Close  > yesterday's resistance line
+    hit support      : today's Low   <= yesterday's support line   (a wick that reaches it counts)
+Only levels that were touched >= config.SR_SIGNAL_MIN_TOUCHES times, or the 1-year extreme
+(touches == 0 fallback), count -- the nearest weak line is ~3-4% away and "hit" it on a quarter of
+all days. Each event then fades linearly over config.SR_EVENT_PERSIST_DAYS trading days
+(strength 1.0 -> 0.0); a break of resistance is cancelled early if Close falls back below the
+broken level. Both columns are strengths in 0..1 (NaN until lines exist).
 """
 import numpy as np
 import pandas as pd
@@ -69,6 +85,7 @@ SR_COLUMNS = [
     "sr_dist_to_support_pct", "sr_dist_to_resistance_pct",
     "sr_regime",
 ]
+SR_EVENT_COLUMNS = ["sr_break_up", "sr_hit_support"]
 MIN_HISTORY_TRADING_DAYS = 60  # same minimum as yearly_* in the fractal features
 
 
@@ -161,6 +178,88 @@ def _regime_from_hurst(h: pd.Series) -> pd.Series:
     return pd.Series(regime, index=h.index)
 
 
+def _event_strengths(close, low, sup, res, sup_touch, res_touch, min_touches, tol, margin, persist):
+    """
+    Per-trading-day event strengths (0..1) for ONE symbol; all inputs are 1-D arrays over its
+    trading days, oldest first. The lines at index t-1 are what was known when day t opened.
+    """
+    n = len(close)
+    up = np.full(n, np.nan)
+    dn = np.full(n, np.nan)
+    age_up = age_dn = None
+    broken = np.nan                      # resistance level that was broken
+    for t in range(1, n):
+        s_prev, r_prev = sup[t - 1], res[t - 1]
+        if not (np.isfinite(s_prev) and np.isfinite(r_prev)):
+            continue                     # no lines yet -> unknown, leave NaN
+        # touches == 0 is the 1-year high/low fallback: the strongest level there is, so it counts too
+        res_ok = res_touch[t - 1] >= min_touches or res_touch[t - 1] == 0
+        sup_ok = sup_touch[t - 1] >= min_touches or sup_touch[t - 1] == 0
+
+        if res_ok and close[t] > r_prev * (1.0 + margin):
+            age_up, broken = 0, r_prev
+        elif age_up is not None:
+            age_up += 1
+            if age_up >= persist or close[t] <= broken:   # faded out, or the break failed
+                age_up = None
+
+        if sup_ok and low[t] <= s_prev * (1.0 + tol):
+            age_dn = 0
+        elif age_dn is not None:
+            age_dn += 1
+            if age_dn >= persist:
+                age_dn = None
+
+        up[t] = 0.0 if age_up is None else 1.0 - age_up / persist
+        dn[t] = 0.0 if age_dn is None else 1.0 - age_dn / persist
+    return up, dn
+
+
+def add_sr_events(df: pd.DataFrame, min_touches=None, tol=None, margin=None, persist=None) -> pd.DataFrame:
+    """
+    Adds `sr_break_up` and `sr_hit_support` (strengths 0..1, see module docstring) computed from the
+    S/R line columns already in `df` (Close/Low/Volume/symbol/Date + the four sr_* line columns).
+    Returns a copy with the SAME index and row order as `df`; if the line columns are missing both
+    new columns are all-NaN (the fuzzy breakout component then simply has no signal).
+    Works on a finished MCS_health.csv too -- the website server uses that to cope with older files.
+    """
+    min_touches = config.SR_SIGNAL_MIN_TOUCHES if min_touches is None else min_touches
+    tol = config.SR_TOUCH_TOL if tol is None else tol
+    margin = config.SR_BREAK_MARGIN if margin is None else margin
+    persist = max(1, int(config.SR_EVENT_PERSIST_DAYS if persist is None else persist))
+
+    out = df.copy()
+    n = len(out)
+    up_all = np.full(n, np.nan)
+    dn_all = np.full(n, np.nan)
+    need = {"Close", "sr_support", "sr_resistance", "sr_support_touches", "sr_resistance_touches"}
+    if n and need.issubset(out.columns):
+        codes = pd.factorize(out["symbol"], sort=True)[0] if "symbol" in out.columns else np.zeros(n, dtype=int)
+        dates = (pd.to_datetime(out["Date"]).to_numpy("datetime64[ns]").astype("int64")
+                 if "Date" in out.columns else np.arange(n))
+        vol = out["Volume"].to_numpy(dtype=float) if "Volume" in out.columns else np.ones(n)
+        close = out["Close"].to_numpy(dtype=float)
+        low = out["Low"].fillna(out["Close"]).to_numpy(dtype=float) if "Low" in out.columns else close
+        sup, res = out["sr_support"].to_numpy(float), out["sr_resistance"].to_numpy(float)
+        sup_t, res_t = out["sr_support_touches"].to_numpy(float), out["sr_resistance_touches"].to_numpy(float)
+
+        order = np.lexsort((dates, codes))                     # by symbol, then date
+        cuts = np.flatnonzero(np.diff(codes[order])) + 1
+        for gpos in np.split(order, cuts):                     # row positions of one symbol, oldest first
+            trad = gpos[vol[gpos] > 0]                         # events are judged on trading days only
+            if trad.size < 2:
+                continue
+            u, d = _event_strengths(close[trad], low[trad], sup[trad], res[trad],
+                                    sup_t[trad], res_t[trad], min_touches, tol, margin, persist)
+            # weekend/holiday rows inherit the latest trading day (same convention as the lines)
+            up_all[gpos] = pd.Series(u, index=trad).reindex(gpos).ffill().to_numpy()
+            dn_all[gpos] = pd.Series(d, index=trad).reindex(gpos).ffill().to_numpy()
+
+    out["sr_break_up"] = up_all
+    out["sr_hit_support"] = dn_all
+    return out
+
+
 def add_support_resistance(df: pd.DataFrame, paths=None, hurst_col: str = "hurst_exponent") -> pd.DataFrame:
     """
     Adds the `SR_COLUMNS` to `df` (per symbol, causal, no rows dropped).
@@ -208,4 +307,9 @@ def add_support_resistance(df: pd.DataFrame, paths=None, hurst_col: str = "hurst
     print(f"[support_resistance] Garis S/R terisi untuk {n_ok}/{len(df)} baris "
           f"({df['symbol'].nunique()} simbol, pivot window={config.SR_PIVOT_WINDOW}, "
           f"lookback={config.SR_LOOKBACK_TRADING_DAYS} hari trading).")
+
+    df = add_sr_events(df)
+    ev = df[SR_EVENT_COLUMNS].notna().all(axis=1)
+    print(f"[support_resistance] Event S/R: 'broke resistance' aktif di {int((df['sr_break_up'] > 0).sum())} baris, "
+          f"'hit support' aktif di {int((df['sr_hit_support'] > 0).sum())} baris (dari {int(ev.sum())} baris berevent).")
     return df

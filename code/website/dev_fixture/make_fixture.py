@@ -16,10 +16,7 @@ df["hurst_exponent"] = rng.uniform(.4, .75, len(df))
 df["breakout_probability"] = np.where(df.symbol.isin(["GIAA.JK", "HATM.JK", "WBSA.JK"]), np.nan, rng.uniform(.05, .8, len(df)))
 try: df = add_support_resistance(df)
 except Exception as e: print("S/R skipped:", e)
-fz = BusinessHealthFuzzySystem()
-real = fz.calculate_health_score(df, mode="real")
-sb = fz.calculate_health_score(df, "predict_breakout", config.PREDICTION_COLUMN, "breakout_probability")
-sp = fz.calculate_health_score(df, "predict", config.PREDICTION_COLUMN)
-df["health_score_predict"] = np.where(df.breakout_probability.notna(), sb, sp)
-df["health_score_real"] = real
+df["sentiment_is_mock"] = True          # the sentiment in the sample file is generated, not BERT output
+# score_frame = the same single call pipeline.py (stage 6) and website/server.py use
+df = BusinessHealthFuzzySystem().score_frame(df)
 out = Path(__file__).parent / "MCS_health.csv"; df.to_csv(out, index=False); print("wrote", out, df.shape)
