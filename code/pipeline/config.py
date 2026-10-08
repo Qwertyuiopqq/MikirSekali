@@ -30,20 +30,19 @@ class Paths:
     # Base (pooled) XGBoost model, same folder as the fine-tuned ones. Only
     # used as a FALLBACK when a symbol has no fine-tuned model of its own.
     xgboost_base_model_filename: str = "base_transport_model.json"
-    # Optional: LSTM-with-Hurst breakout-probability models, ONE PER COMPANY.
-    # Expected layout (this is exactly what the Colab export zip unpacks to):
+    # Optional: breakout-probability models (written by lstm_hurst_train.py, read by lstm_hurst_predictor.py).
+    # Layout:
     #
     #   <lstm_hurst_model_path>/
-    #       ASSA/  best_lstm_hurst_model.pth
-    #              lstm_hurst_scaler.joblib
-    #              lstm_hurst_best_params.json
-    #       BIRD/  ...
-    #       (one sub-folder per symbol, name = symbol without ".JK")
+    #       _POOLED/  lstm_hurst_best_params.json     <- ONE model for every company (the default; the features
+    #                 [best_lstm_hurst_model.pth]        are scale-free, so companies can share it). The .pth is
+    #       ASSA/     ...                                only there when the LSTM beat the logistic model.
+    #       (optional per-company sub-folders, name = symbol without ".JK", override the pooled model)
     #
-    # A company whose sub-folder (or any of its 3 files) is missing is
-    # skipped gracefully -- its breakout_probability stays NaN -- instead
-    # of failing the whole pipeline (same pattern as the optional
-    # sentiment file in enrichment.py).
+    # A company that has neither its own folder nor a usable pooled model is skipped gracefully -- its
+    # breakout_probability stays NaN -- instead of failing the whole pipeline (same pattern as the
+    # optional sentiment file in enrichment.py). Models written by the OLD trainer (per-company, raw Close
+    # feature, calendar-day windows) are recognised and skipped: they must be retrained.
     lstm_hurst_model_path: str = "../../models/LSTMwithHurst"
     # Fine-tuned FinBERT (HuggingFace format: config.json, tokenizer files, weights).
     # Only used by website/sentiment_trigger.py (demo sentiment badge), not by the
@@ -153,10 +152,43 @@ SR_TOUCH_TOL = 0.0         # "hit support": today's Low <= yesterday's support l
 SR_BREAK_MARGIN = 0.0      # "broke resistance": today's Close > yesterday's resistance line * (1 + this)
 SR_EVENT_PERSIST_DAYS = 3  # an event fades linearly over this many trading days (1.0, 0.67, 0.33, then gone)
 
-# Per-company LSTM-Hurst artifact filenames (inside <lstm_hurst_model_path>/<COMPANY>/).
+# ---- XGBoost forecast target ---------------------------------------------------------------------------------
+# What target_volume_T_plus_1 means (spine_builder.py builds it, train_xgboost_transfer.py learns it):
+#   "next_trading_day"  volume of the next SESSION in which the stock traded (Friday -> Monday, holiday -> the day after).
+#   "next_calendar_day" the OLD definition: volume of tomorrow's calendar day, which is 0 on weekends and holidays.
+# The old one made 37% of the training targets zero (28.5% weekends + 8.2% weekday holidays/no-trade days), which
+# pulled every forecast down ~2x (median actual/forecast = 1.94 on the 10-company dataset) and made Fri/Sat forecasts
+# ~0. A model trained on "next_trading_day" has neither problem. A model WITHOUT training metadata
+# (xgb_training_meta.json, written by the new trainer) is assumed to be XGB_LEGACY_TARGET_MODE.
+XGB_TARGET_MODE = "next_trading_day"
+XGB_LEGACY_TARGET_MODE = "next_calendar_day"
+TARGET_MAX_GAP_DAYS = 7          # next session further away than this (a suspension) -> no target for that row
+XGB_META_FILENAME = "xgb_training_meta.json"
+
+# ---- Breakout-probability model (lstm_features.py / lstm_hurst_train.py / lstm_hurst_predictor.py) ----------
+# P(Close exceeds its LSTM_YEARLY_WINDOW-trading-day high within the next LSTM_HORIZON trading days).
+# Everything is measured in TRADING days (the old version used calendar rows: its "252-day" window was ~8
+# months, its "30 days" ~21 sessions, and the Hurst window was 37% weekend/holiday forward-fills).
+LSTM_FEATURE_VERSION = 2          # models without this version (the old trainer) are skipped by the predictor
+LSTM_SEQ_LENGTH = 30              # sessions of history the LSTM sees
+LSTM_HORIZON = 21                 # label horizon, trading days (~ one month)
+LSTM_YEARLY_WINDOW = 252          # resistance / support = rolling max / min Close over this many sessions
+LSTM_YEARLY_MIN_PERIODS = 60
+LSTM_VOL_WINDOW = 20              # sessions for the volatility that scales the distances
+LSTM_MAX_ABS_LOG_RET = 0.5        # a one-session |log return| above this is an unadjusted split: the price series is chain-linked
+# Scale-free inputs only (the old model fed the raw Close level, which was up to 24 standard deviations out of its
+# training range for ELPI). dist_*_sigma = ln(level / Close) in units of the horizon's volatility, the quantity a
+# first-passage probability depends on; hurst_c = Hurst exponent clipped to 0..1.
+LSTM_FEATURES = ["dist_res_sigma", "dist_sup_sigma", "range_pos", "log_ret", "hurst_c"]
+# Predictor gate: skip a trained model whose own hold-out report says it did NOT beat the trivial baselines
+# (lstm_hurst_best_params.json -> beats_baseline == false). False = use it anyway.
+LSTM_USE_ONLY_IF_BEATS_BASELINE = True
+LSTM_POOLED_DIRNAME = "_POOLED"
+
+# Artifact filenames (inside <lstm_hurst_model_path>/<_POOLED or COMPANY>/).
 LSTM_MODEL_FILENAME = "best_lstm_hurst_model.pth"
-LSTM_SCALER_FILENAME = "lstm_hurst_scaler.joblib"
-LSTM_PARAMS_FILENAME = "lstm_hurst_best_params.json"
+LSTM_PARAMS_FILENAME = "lstm_hurst_best_params.json"   # holds the scaler, logistic coefficients, calibration, metrics
+LSTM_SCALER_FILENAME = "lstm_hurst_scaler.joblib"      # old trainer only (the scaler now lives in the params file)
 
 # Support / resistance lines (pipeline/support_resistance.py).
 SR_PIVOT_WINDOW = 5          # bars on each side needed to confirm a swing high/low
@@ -164,10 +196,11 @@ SR_LOOKBACK_TRADING_DAYS = 252   # ~1 trading year of pivots are considered
 SR_CLUSTER_ATR_MULT = 0.6    # pivots closer than this many ATRs are merged into one level
 SR_ATR_PERIOD = 14
 SR_MIN_TOUCHES = 2           # prefer levels touched at least this often; weaker ones are only used if a side has none
-# Rolling window for the Hurst exponent, in spine rows. The `hurst` package REFUSES series
-# shorter than 100 points (raises ValueError) -- with the old window of 60 every call failed
-# silently into the "return 0.5" fallback, so hurst_exponent was a constant 0.5 in both
-# training and inference. Must equal HURST_WINDOW in lstm_hurst_prepare.py.
+# Rolling window for the Hurst exponent, in TRADING DAYS (it is computed on the session closes only; the old
+# version ran on the calendar spine, where 37% of the window was flat weekend/holiday fill, and 1.7% of the
+# estimates came out above 1). The `hurst` package REFUSES series shorter than 100 points (raises
+# ValueError) -- with the old window of 60 every call failed silently into the "return 0.5" fallback, so
+# hurst_exponent was a constant 0.5 in both training and inference.
 HURST_WINDOW = 100
 # Regime thresholds for sr_regime. The simplified R/S estimator is biased upward on short
 # windows: a pure random walk of 100 points gives H ~ 0.58 (5-95% range ~0.38-0.84), so

@@ -10,18 +10,19 @@ Google Colab between two local runs.
                fundamentals) into XGBoost-ready features    -> MCS_features.csv
       Stage 3: fuzzy health score on REAL data only          -> MCS_report.csv
 
-    MANUAL -- upload MCS_features.csv to Colab, run
-              train_xgboost_transfer.py, download the
-              base + per-company models into
-              <config.xgboost_models_folder> (default models/XGBoost/)
-              Optional: lstm_hurst_prepare.py + lstm_hurst_tune_train.py
-              (Colab) -> unzip LSTMwithHurst.zip into models/ so that
-              models/LSTMwithHurst/<COMPANY>/ holds each company's LSTM.
+    TRAINING -- run these from this folder (or upload MCS_features.csv and
+              the .py files they import to Colab):
+                python train_xgboost_transfer.py   -> <config.xgboost_models_folder>
+                          (base + per-company models + xgb_training_meta.json)
+                python lstm_hurst_train.py         -> <config.lstm_hurst_model_path>
+                          (_POOLED/ model; --mode both adds per-company ones;
+                           --no-lstm trains the logistic model only, no torch)
+              Both print a hold-out report; try `--smoke` first (1 minute).
 
     LOCAL  -- python pipeline.py score
       Stage 5: run the downloaded XGBoost models on
                MCS_features.csv                              -> MCS_predict.csv
-      Stage 5b: per-company LSTM-Hurst breakout probability (optional)
+      Stage 5b: breakout probability + Hurst exponent (optional)
       Stage 5c: support/resistance lines + Hurst regime (optional)
       Stage 6: fuzzy health scores (REAL + PREDICTED, both
                recomputed here with the current formulas)    -> MCS_health.csv
@@ -133,7 +134,7 @@ def _print_scoring_summary(df_health: pd.DataFrame, fuzzy_sys: BusinessHealthFuz
               f"      Sediakan {config.Paths().sentiment_scores_csv} (mis. via `python website/sentiment_trigger.py "
               "--save-csv`) lalu jalankan `prepare` + `score` lagi.")
     if not has_breakout:
-        print("   -> breakout_probability tidak tersedia (belum ada model LSTM-Hurst) -> komponen breakout tidak dihitung.")
+        print("   -> breakout_probability tidak tersedia (belum ada model breakout yang lolos uji hold-out / riwayat kurang) -> komponen breakout tidak dihitung.")
 
 
 def run_score(paths: config.Paths) -> dict:
@@ -151,7 +152,7 @@ def run_score(paths: config.Paths) -> dict:
     print("\n=== STAGE 5/6: Menjalankan prediksi XGBoost -> MCS_predict ===")
     df_predict = run_predictions(df_features, paths)
 
-    print("\n=== STAGE 5b/6: (opsional) Skor breakout LSTM-Hurst (1 model per perusahaan) ===")
+    print("\n=== STAGE 5b/6: (opsional) Probabilitas breakout + Hurst (model gabungan atau per perusahaan) ===")
     df_predict = add_breakout_probability(df_predict, paths)
     has_breakout = "breakout_probability" in df_predict.columns and df_predict["breakout_probability"].notna().any()
 

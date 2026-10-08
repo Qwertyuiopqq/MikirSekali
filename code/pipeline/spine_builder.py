@@ -10,12 +10,25 @@ engineers the base momentum/calendar features.
 
 Public entry point: `build_raw_spine(paths) -> pd.DataFrame`
 Produces: MCS_raw.csv
+
+The forecast target `target_volume_T_plus_1` is the volume of the NEXT TRADING SESSION
+(config.XGB_TARGET_MODE = "next_trading_day": Friday -> Monday, the day before a holiday -> the
+day after it). The old definition, tomorrow's CALENDAR day, is 0 on weekends and holidays; that put
+zeros into 37% of the training targets, pulled every forecast down ~2x and made Friday/Saturday
+forecasts ~0. Rows without a target (the newest session and the weekend after it, or a session
+more than config.TARGET_MAX_GAP_DAYS away) are KEPT: they are exactly the rows a real forecast is
+needed for, and the trainer drops them itself.
 """
 import glob
 import os
 
 import numpy as np
 import pandas as pd
+
+try:
+    from . import config
+except ImportError:  # running as a plain script, not as a package
+    import config
 
 
 def _load_history_files(history_folder: str, glob_pattern: str) -> pd.DataFrame:
@@ -57,6 +70,12 @@ def _build_calendar_spine(df_raw: pd.DataFrame) -> pd.DataFrame:
 def _fill_and_flag(df_master: pd.DataFrame) -> pd.DataFrame:
     """Forward-fill prices, zero-fill volumes/corp-actions, add calendar flags."""
     price_columns = ["Open", "High", "Low", "Close"]
+    # A raw row with Volume == 0 is a RECORD, not a trade (corporate actions, halts): its prices are not market
+    # prices. TMAS 2023-05-23 is a split record priced 38.58 beside a real ~265, which made the following session
+    # look like +560% and polluted daily_return_pct / volatility_7d / the moving averages for weeks. Treat such rows
+    # like any non-trading day: carry the last session's prices forward.
+    no_trade = df_master["Volume"].fillna(0) <= 0
+    df_master.loc[no_trade, price_columns] = np.nan
     df_master[price_columns] = df_master.groupby("symbol")[price_columns].ffill()
 
     df_master["Volume"] = df_master["Volume"].fillna(0)
@@ -68,6 +87,23 @@ def _fill_and_flag(df_master: pd.DataFrame) -> pd.DataFrame:
     df_master["is_dividend"] = (df_master["Dividends"] > 0).astype(int)
     df_master["is_stock_split"] = (df_master["Stock Splits"] > 0).astype(int)
     return df_master
+
+
+def next_session_target(df: pd.DataFrame, max_gap_days: int = None) -> pd.Series:
+    """
+    For every row, the Volume of the first LATER row on which the stock traded (Volume > 0),
+    per symbol; NaN when there is none yet (the newest rows) or when that session is more than
+    `max_gap_days` calendar days away (a suspension: "volume the day trading resumes" is not a
+    next-day forecast). `df` needs symbol, Date and Volume and must be sorted by (symbol, Date).
+    """
+    max_gap_days = config.TARGET_MAX_GAP_DAYS if max_gap_days is None else max_gap_days
+    sym = df["symbol"]
+    traded = df["Volume"] > 0
+    # shift(-1) = "strictly later"; bfill = "the first one that exists" (both inside each symbol)
+    next_volume = df["Volume"].where(traded).groupby(sym).shift(-1).groupby(sym).bfill()
+    next_date = df["Date"].where(traded).groupby(sym).shift(-1).groupby(sym).bfill()
+    gap_days = (next_date - df["Date"]).dt.days
+    return next_volume.where(gap_days <= max_gap_days)
 
 
 def _add_momentum_features(df_master: pd.DataFrame) -> pd.DataFrame:
@@ -88,7 +124,10 @@ def _add_momentum_features(df_master: pd.DataFrame) -> pd.DataFrame:
 
     g_vol = df_master.groupby("symbol")["Volume"]
     df_master["MA_7_Volume"] = g_vol.transform(lambda s: s.rolling(window=7, min_periods=1).mean())
-    df_master["target_volume_T_plus_1"] = g_vol.shift(-1)
+    if config.XGB_TARGET_MODE == config.XGB_LEGACY_TARGET_MODE:
+        df_master["target_volume_T_plus_1"] = g_vol.shift(-1)      # old: tomorrow's CALENDAR day (0 on weekends)
+    else:
+        df_master["target_volume_T_plus_1"] = next_session_target(df_master)
 
     df_master["volatility_7d"] = df_master.groupby("symbol")["daily_return_pct"].transform(
         lambda s: s.rolling(window=7, min_periods=1).std()
@@ -117,6 +156,8 @@ def build_raw_spine(paths) -> pd.DataFrame:
 
     print("[spine_builder] Menghitung fitur momentum & target...")
     df_master = _add_momentum_features(df_master)
-    df_master = df_master.dropna(subset=["target_volume_T_plus_1"])
+    if config.XGB_TARGET_MODE == config.XGB_LEGACY_TARGET_MODE:
+        df_master = df_master.dropna(subset=["target_volume_T_plus_1"])
+    # (new mode: rows without a target stay -- they are the rows that get the real forecast)
 
     return df_master.reset_index(drop=True)

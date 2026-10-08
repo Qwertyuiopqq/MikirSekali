@@ -16,7 +16,6 @@ this file tells you which rule is being violated:
   5. config.py                         where MCS_health.csv lives
 """
 import sys
-import types
 from pathlib import Path
 
 import numpy as np
@@ -24,12 +23,6 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-for _m in ("xgboost", "torch", "tensorflow"):         # not needed here; lets the modules import on a machine without them
-    try:
-        __import__(_m)
-    except Exception:
-        sys.modules[_m] = types.ModuleType(_m)
-
 from pipeline import config                                                     # noqa: E402
 from pipeline.fuzzy_system import BusinessHealthFuzzySystem, xgb_applicable, forecast_norm  # noqa: E402
 from pipeline.support_resistance import add_sr_events, _event_strengths         # noqa: E402
@@ -255,6 +248,15 @@ def test_forecast_for_a_weekend_is_left_out_of_the_score():
 def test_applicable_rows():
     d = pd.DataFrame({"day_of_week": [0, 1, 2, 3, 4, 5, 6, 2], "Volume": [1, 1, 1, 1, 1, 0, 0, 0]})
     assert xgb_applicable(d).tolist() == [True, True, True, True, False, False, False, False]
+
+
+def test_applicability_follows_how_the_model_was_trained():
+    d = pd.DataFrame({"day_of_week": [0, 3, 4, 5, 6, 2], "Volume": [1, 1, 1, 0, 0, 0]})
+    # old models (no xgb_target_mode column): forecast = tomorrow's CALENDAR day, so Fri/Sat/Sun/holiday rows are unusable
+    assert xgb_applicable(d).tolist() == [True, True, False, False, False, False]
+    # new models: every row forecasts the next SESSION (Friday -> Monday), so every row is usable
+    assert xgb_applicable(d.assign(xgb_target_mode="next_trading_day")).tolist() == [True] * 6
+    assert xgb_applicable(d.assign(xgb_target_mode="next_calendar_day")).tolist() == [True, True, False, False, False, False]
 
 
 def test_forecast_norm_cancels_a_weekday_dependent_bias():

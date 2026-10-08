@@ -15,9 +15,17 @@ the base model (with a warning, since the base model has not seen that
 company specifically). If neither exists the symbol is skipped with a
 warning rather than raising.
 
+Training metadata: train_xgboost_transfer.py also writes <models folder>/xgb_training_meta.json
+(what the target was, which features, the hold-out report). This module copies the target
+definition into a column `xgb_target_mode`, which tells the fuzzy system how to read the
+forecast: "next_trading_day" (every row forecasts the next SESSION, Friday -> Monday) or the old
+"next_calendar_day" (Friday/Saturday forecast the weekend, ~0, and cannot be scored). A model folder
+WITHOUT metadata was trained the old way.
+
 Public entry point: `run_predictions(df, paths, feature_cols) -> pd.DataFrame`
 Produces the data behind MCS_predict.csv (before health scoring).
 """
+import json
 import os
 
 import numpy as np
@@ -41,6 +49,19 @@ def _base_model_path(paths) -> str:
     return os.path.join(paths.xgboost_models_folder, filename)
 
 
+def read_training_meta(paths) -> dict:
+    """Contents of xgb_training_meta.json ({} when the models were trained before it existed)."""
+    path = os.path.join(paths.xgboost_models_folder, config.XGB_META_FILENAME)
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError) as e:
+        print(f"[xgboost_predictor] WARNING: {path} tidak bisa dibaca ({e}) -> dianggap model lama.")
+        return {}
+
+
 def run_predictions(df: pd.DataFrame, paths, feature_cols=None,
                      prediction_col: str = config.PREDICTION_COLUMN) -> pd.DataFrame:
     """
@@ -61,6 +82,17 @@ def run_predictions(df: pd.DataFrame, paths, feature_cols=None,
     df = df.copy()
     feature_cols = feature_cols or config.XGBOOST_FEATURES
     df[prediction_col] = np.nan
+
+    meta = read_training_meta(paths)
+    target_mode = meta.get("target_mode") or config.XGB_LEGACY_TARGET_MODE
+    df["xgb_target_mode"] = target_mode          # how the fuzzy system must read the forecast (see fuzzy_system.xgb_applicable)
+    if target_mode == config.XGB_LEGACY_TARGET_MODE:
+        print("[xgboost_predictor] ⚠️ Model XGBoost ini dilatih dengan target LAMA (volume hari KALENDER berikutnya: "
+              "forecast Jumat/Sabtu ~0 dan seluruh level forecast ~2x terlalu rendah). Forecast Jumat/Sabtu/Minggu "
+              "dikeluarkan dari skor. Latih ulang dengan train_xgboost_transfer.py (target = sesi perdagangan berikutnya).")
+    if meta.get("features") and list(meta["features"]) != list(feature_cols):
+        print("[xgboost_predictor] ⚠️ Daftar fitur model (xgb_training_meta.json) BERBEDA dari config.XGBOOST_FEATURES -> "
+              "prediksi bisa salah. Latih ulang atau samakan daftar fiturnya.")
 
     symbols = df["symbol"].unique()
     print(f"[xgboost_predictor] Ditemukan {len(symbols)} simbol. Memulai prediksi...")

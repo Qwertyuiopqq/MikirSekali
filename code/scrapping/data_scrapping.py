@@ -12,7 +12,7 @@ api_key = os.getenv("SECTORS_API_KEY")
 if not api_key:
     raise ValueError("⚠️ API Key tidak ditemukan! Pastikan file .env sudah dikonfigurasi.")
 
-symbol = "BLOG.JK"
+symbol = "WBSA.JK"
 url = f"https://api.sectors.app/v2/daily/{symbol}/"
 headers = {"Authorization": api_key}
 

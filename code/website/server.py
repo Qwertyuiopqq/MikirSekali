@@ -9,10 +9,12 @@ Only needs pandas + numpy (already required by the pipeline). No extra installs.
 
 Where the numbers come from
 ---------------------------
-  * Every price/volume/forecast/S-R/Hurst/LSTM number is read from MCS_health.csv.
+  * Every price/volume/forecast/S-R/Hurst/breakout number is read from MCS_health.csv.
   * The HEALTH SCORES are re-derived on load from that file's component columns with pipeline.fuzzy_system
     (the same code `pipeline.py score` uses), so the website always reflects the current formulas even if
     the CSV was written by an older version. Nothing on the dashboard is random or hard-coded.
+  * Breakout probability, forecast and Hurst are shown as the pipeline computed them (columns breakout_probability /
+    breakout_model, target_volume_T_plus_1_pred / xgb_target_mode, hurst_exponent).
   * Sentiment: the CSV's daily_news_sentiment is only used when it is REAL (not the pipeline's random mock
     fallback). A LIVE company sentiment pushed by `python website/sentiment_trigger.py` (FinBERT over the
     news file, POSTed to /api/sentiment) replaces today's sentiment of THAT company and the fuzzy health
@@ -224,7 +226,7 @@ def latest_sentiment(g, live=None):
 
 
 FACTOR_LABELS = {"sentiment": "News Sentiment", "trend": "Price Trend", "stability": "Price Stability",
-                 "xgboost": "Volume Outlook (XGBoost)", "breakout": "Breakout / Support (LSTM-Hurst)"}
+                 "xgboost": "Volume Outlook (XGBoost)", "breakout": "Breakout / Support (Hurst-weighted)"}
 
 
 def factor_rows(r, live=None):
@@ -264,7 +266,8 @@ def factor_rows(r, live=None):
     if P is not None:
         h = None if H is None else float(Fz.hurst_persistence(H))
         reg = val(r, "sr_regime") or "unknown"
-        base = f"P(Close > its 252-day high within 30d) = {P:.0%}; Hurst {H:.2f} ({reg}) -> trend persistence {h:.0%}" if H is not None else f"P = {P:.0%}"
+        model_note = f" [{val(r, 'breakout_model')}]" if val(r, "breakout_model") else ""
+        base = f"P(Close > its 252-session high within 21 sessions) = {P:.0%}{model_note}; Hurst {H:.2f} ({reg}) -> trend persistence {h:.0%}" if H is not None else f"P = {P:.0%}"
         parts = []
         if up > 0:
             parts.append(f"price BROKE resistance (strength {up:.0%}): +P x persistence")
@@ -282,7 +285,7 @@ def factor_rows(r, live=None):
     out = []
     for k in ("sentiment", "trend", "stability", "xgboost", "breakout"):
         if k == "breakout" and P is None:
-            continue                                  # no LSTM-Hurst model for this company (explained on the page)
+            continue                                  # no breakout model for this company (explained on the page)
         m = mem[k]
         out.append({"key": k, "label": FACTOR_LABELS[k], "score": None if m != m else float(m) * 100,
                     "weight": 0.0 if wt[k] != wt[k] else float(wt[k]),
@@ -331,6 +334,8 @@ def dashboard(store, symbol, live=None):
     recent = g.tail(30)
     fit_rows = g.tail(90).dropna(subset=["target_volume_T_plus_1", config.PREDICTION_COLUMN]) if "target_volume_T_plus_1" in g else g.iloc[0:0]
     fit_rows = fit_rows[fit_rows["target_volume_T_plus_1"] > 0]
+    if "xgb_applicable" in fit_rows:                 # old models: Fri/Sat forecast the weekend (~0), which says nothing about fit
+        fit_rows = fit_rows[fit_rows["xgb_applicable"].astype(bool)]
     mape = float((abs(fit_rows[config.PREDICTION_COLUMN] - fit_rows["target_volume_T_plus_1"]) / fit_rows["target_volume_T_plus_1"]).mean()) if len(fit_rows) else None
     cov_cols = [c for c in ["daily_news_sentiment", "daily_return_pct", "volatility_7d", config.PREDICTION_COLUMN, "breakout_probability"] if c in g]
     cov = recent[cov_cols].copy()

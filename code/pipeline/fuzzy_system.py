@@ -23,26 +23,27 @@ weighted average of the memberships x 100:
              (log-space training), so "forecast / actual volume" would read as
              "falling" on almost every day. The old code divided the forecast by 1.0
              and clipped to 1 -- volumes are in the millions, so it was ALWAYS 1.0.
-  breakout   LSTM-Hurst x support/resistance, SIGNED, neutral = 0.5:
+  breakout   breakout probability x Hurst x support/resistance, SIGNED, neutral = 0.5:
                  price broke resistance -> UP   : + P(breakout) x Hurst-persistence
                  price hit support      -> DOWN : - (1 - P(breakout)) x Hurst-persistence
-             P(breakout) is the LSTM's chance that Close exceeds its 252-day
-             high (`yearly_resistance`, 252 calendar rows ~ 8 months) within 30 days; Hurst-persistence is 0 for a mean-reverting
+             P(breakout) is the breakout model's chance (lstm_hurst_train.py: a
+             logistic model or an LSTM) that Close exceeds its 252-session high
+             (`yearly_resistance`) within the next 21 sessions; Hurst-persistence is 0 for a mean-reverting
              regime (levels hold) and 1 for a trending one (levels give way), see
              `hurst_persistence`. Events come from support_resistance.add_sr_events.
-             (The LSTM only models the UPSIDE break, so on the support side it can
-             only damp the penalty via 1 - P. A true P(break support) would need a
-             second LSTM label.)
+             (The breakout model only covers the UPSIDE break, so on the support side
+             it can only damp the penalty via 1 - P. A true P(break support) would
+             need a second label.)
 
 Three modes (which components take part):
   'real'             sentiment + trend + stability                   -> health_score_real
   'predict'          + xgboost                                       -> health_score_predict
-  'predict_breakout' + xgboost + breakout (when the LSTM-Hurst model
+  'predict_breakout' + xgboost + breakout (when the breakout model
                      produced a probability for that company)        -> health_score_predict
 
 Missing-signal rule: a component that has no signal on a row (NaN, an
 XGBoost forecast about a non-trading day, sentiment that is mock noise, no
-LSTM model for the company, ...) is LEFT OUT of that row's score and the
+breakout model for the company, ...) is LEFT OUT of that row's score and the
 remaining weights are renormalised. trend and stability are the core price
 inputs: without them a row has no score (NaN).
 """
@@ -63,19 +64,24 @@ FORECAST_COLUMNS = ["xgb_applicable", "xgb_norm"]
 # ---- volume-forecast helpers (used by the score AND exposed in MCS_health.csv) -------------
 def xgb_applicable(df: pd.DataFrame) -> pd.Series:
     """
-    True where the XGBoost forecast describes a REAL next trading day: today traded
-    (Volume > 0) and the next calendar day is Mon-Fri.
+    True where the XGBoost forecast describes a REAL next trading session.
 
-    The model is trained on the next CALENDAR day's volume, so on Fri/Sat rows it
-    (correctly) forecasts ~0 for the weekend, and on Sun/holiday rows it works from
-    zero-volume features. Scoring those forecasts made health_score_predict drop by
-    ~26 points on every Friday and Saturday.
+    Depends on how the model was trained (column `xgb_target_mode`, written by xgboost_predictor.py from
+    the model's training metadata; a frame without it is assumed to come from an old model):
+
+      "next_trading_day"   every row has a forecast of the next session (Friday -> Monday): all rows count.
+      "next_calendar_day"  (old models) the target was tomorrow's CALENDAR day, so Fri/Sat rows (weekend,
+                           ~0) and Sun/holiday rows (built from zero-volume features) are not usable:
+                           only trading days followed by a Mon-Fri count. Scoring those forecasts made
+                           health_score_predict drop by ~26 points on every Friday and Saturday.
     """
+    mode = df["xgb_target_mode"] if "xgb_target_mode" in df.columns else config.XGB_LEGACY_TARGET_MODE
+    new_style = np.asarray(mode == "next_trading_day", dtype=bool)
     dow = (df["day_of_week"] if "day_of_week" in df.columns
            else pd.to_datetime(df["Date"]).dt.dayofweek)
     traded = (df["Volume"] > 0) if "Volume" in df.columns else pd.Series(True, index=df.index)
-    ok = traded.to_numpy(dtype=bool) & dow.isin([0, 1, 2, 3]).to_numpy(dtype=bool)
-    return pd.Series(ok, index=df.index)
+    legacy = traded.to_numpy(dtype=bool) & dow.isin([0, 1, 2, 3]).to_numpy(dtype=bool)
+    return pd.Series(np.where(new_style, True, legacy), index=df.index)
 
 
 def forecast_norm(df: pd.DataFrame, pred_col: str, applicable=None,
@@ -169,7 +175,7 @@ class BusinessHealthFuzzySystem:
     @classmethod
     def _fuzzify_breakout(cls, prob, hurst, up, down):
         """
-        Signed LSTM-Hurst x S/R membership in 0..1 (0.5 = no event).
+        Signed breakout-probability x Hurst x S/R membership in 0..1 (0.5 = no event).
         `up` / `down` are the 0..1 strengths of 'broke resistance' / 'hit support'.
         """
         p = np.clip(prob, 0.0, 1.0)

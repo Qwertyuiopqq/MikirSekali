@@ -10,7 +10,7 @@ progressively richer datasets:
     4. MCS_health.csv  - MCS_predict + PREDICTED health score (uses XGBoost output)
 
 Optional stages inside `score` (each skipped gracefully if its models are absent):
-    5b. per-company LSTM-Hurst breakout probability (models/LSTMwithHurst/<COMPANY>/)
+    5b. breakout probability + Hurst (models/LSTMwithHurst/_POOLED/ or <COMPANY>/, trained by lstm_hurst_train.py)
     5c. support/resistance lines + Hurst regime (support_resistance.py, no model needed)
 
 Run `python -m mcs_pipeline.pipeline` (or `python pipeline.py` from inside the

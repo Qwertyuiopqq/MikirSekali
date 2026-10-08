@@ -17,6 +17,8 @@ df["breakout_probability"] = np.where(df.symbol.isin(["GIAA.JK", "HATM.JK", "WBS
 try: df = add_support_resistance(df)
 except Exception as e: print("S/R skipped:", e)
 df["sentiment_is_mock"] = True          # the sentiment in the sample file is generated, not BERT output
+df["xgb_target_mode"] = "next_trading_day"   # fixture forecasts follow the NEW target (next session), so every row has one
+df["breakout_model"] = np.where(df["breakout_probability"].notna(), "pooled-logit", None)   # (shown in the factor ledger)
 # score_frame = the same single call pipeline.py (stage 6) and website/server.py use
 df = BusinessHealthFuzzySystem().score_frame(df)
 out = Path(__file__).parent / "MCS_health.csv"; df.to_csv(out, index=False); print("wrote", out, df.shape)
