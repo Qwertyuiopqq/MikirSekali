@@ -21,6 +21,8 @@ class Paths:
     history_glob_pattern: str = "Histori 5 taun terakhir*"
     idx_market_summary_csv: str = "../../dataset/csv/IDX_market_summary.csv"
     fundamental_json: str = "../../dataset/json/top10-transportation-by-marketcap-company_report.json"
+    sectors_daily_transactions_path: str = "../../dataset/csv"
+    sectors_daily_transactions_filename_tpl: str = "daily_transactions_{symbol}_2021_2025.csv"
     # Optional REAL sentiment file. If it exists, enrichment.py merges it in
     # by (Date, symbol). If it's missing (or fails to load), a mock/derived
     # sentiment score is generated instead so the pipeline never blocks.

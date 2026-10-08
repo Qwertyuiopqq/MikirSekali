@@ -81,8 +81,21 @@ if all_transactions:
     # Mengurutkan dan menghapus duplikat data jaga-jaga ada tumpang tindih
     df = df.sort_values('date').drop_duplicates().reset_index(drop=True)
     
-    csv_filename = f"daily_transaction_{symbol}_2021_2025.csv"
-    df.to_csv(csv_filename, index=False)
-    print(f"\n✅ Selesai! Total {len(df)} baris data berhasil disimpan ke file '{csv_filename}'")
+    # 1. Tentukan path folder tujuan
+    output_dir = "../../dataset/csv"
+    
+    # 2. Buat foldernya secara otomatis jika belum ada (mencegah FileNotFoundError)
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # 3. Tentukan nama file (saya sesuaikan menjadi "transactions" pakai 's' sesuai format kamu sebelumnya)
+    csv_filename = f"daily_transactions_{symbol}_2021_2025.csv"
+    
+    # 4. Gabungkan path folder dan nama file
+    full_path = os.path.join(output_dir, csv_filename)
+    
+    # 5. Simpan DataFrame ke full_path
+    df.to_csv(full_path, index=False)
+    
+    print(f"\n✅ Selesai! Total {len(df)} baris data berhasil disimpan ke '{full_path}'")
 else:
     print("\n⚠️ Tidak ada data yang berhasil ditarik.")

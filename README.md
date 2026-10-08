@@ -11,79 +11,56 @@ Pitching Deck: https://canva.link/ndw3ggxcxwre0fj
 # Pipeline
 ![Flowchart](image/Backend_Process.png)
 
-# Training
-
-finBERT : https://colab.research.google.com/drive/1BCSbqvqGkYqZ0-Gwt9d_JLBNY6-i2UUS?usp=sharing
-
-XGBoost : https://colab.research.google.com/drive/1kOsba0z-BVFObEBp0HQi4TPQxfHWrvVs?usp=sharing
-
-# Models
-
-https://drive.google.com/drive/folders/1q6NxtH5zROvEvAEWO0ihy320rxWmSiUn?usp=sharing
-
 # How to run?
 
-## Full 
+## Preparation 
 1. Install all requirements
 ```bash
 pip install -r requirements.txt
 ```
-2. run in command prompt
+2. Input the API Key
+
+Create an environment file with the name "**.env**"  and input your sectors API 
+```
+SECTORS_API_KEY=[API KEY]
+```
+You can get your sectors API from https://sectors.app/api
+
+3. Pull the data by running
+```
+python code/scrapping/data_scrapping.py
+```
+Note* : Keep in mind that the you can use `fix_daily.py` to run if theres any error or fails on getting the data.
+
+Note** : You can add as many target as you want based on the data that is provided by Sectors.
+
+4. Prepare the data
 ```
 cd code/pipeline
 python pipeline.py prepare
-cd ../..
 ```
-1. Upload the `MCS_features.csv` into a the google collab. (Use the XGBoost Google collab link)
-2. Download all the models into `models/XGBoost`
-3. Open the link for the finBERT training in google collab
-4. Run all the cell in the google collab
-5. Download and unzip the `model_finetuned.zip` into `models/finBERT` (Make sure it's not in a nested folder)
-6. Run in command prompt
+This will create the data used for the model training
+
+5. Start training the components
 ```
-cd code/pipeline
+python train_xgboost_transfer.py
+python lstm_hurst_train.py  
+```
+6. Create the main data for the website
+```
 python pipeline.py score
-cd ../..
-```
-Note : I recommend to just download the models in the models GDrive link
-## After models download
-1. Install all requirements
-```bash
-pip install -r requirements.txt
-```
-2. Download all models
-3. run in command prompt
-```
-cd code/pipeline
-python pipeline.py score
-cd ../..
 ```
 
-## Mock Test
-
-After the files and models exist,
-```bash
-cd code/testing
-python run_test.py --input test.csv
-cd ../..
+## Server
+Make sure you are in in the **code/** directory. Then run,
 ```
-Note : `test.csv` is the location of the mock data.
-
-# Outputs
-
-## Output
-1. `MCS_raw.csv` : File Master Calender Spline Raw
-2. `MCS_report.csv` : File Master Calender Spline that have a health score from real data.
-3. `MCS_prdedict.csv` : File Master Calender Spline with predicted data with XGBoost (All Company)
-4. `MCS_health.csv` : File Master Calender Spline that have a health score from real and predicted data. 
-
-# Additional
-
-## BERT testing
-To test BERT model
+python website/server.py
 ```
-cd code/test
-python finBERT.py
-cd ../..
+You can then access the website through the link in the terminal output.
+
+To test the BERT sentiment on the website,
 ```
+python website/sentiment_trigger.py  
+```
+
 

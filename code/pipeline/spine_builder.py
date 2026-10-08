@@ -39,14 +39,54 @@ def _load_history_files(history_folder: str, glob_pattern: str) -> pd.DataFrame:
             f"No history files found matching '{glob_pattern}' in '{history_folder}'"
         )
 
+    # Definisikan langsung path dan template nama file sesuai infomu agar tidak error dari config
+    new_data_path = "../../dataset/csv"
+    new_data_tpl = "daily_transactions_{symbol}_2021_2025.csv"
+
     frames = []
     for file in all_files:
         filename = os.path.basename(file)
+        # Ekstrak symbol dari nama file lama (misal: "Histori 5 taun terakhir ASSA.JK.csv")
         symbol = filename.split("terakhir ")[-1].replace(".csv", "").replace(".xlsx", "")
-        try:
-            df = pd.read_csv(file)
-        except Exception:
-            df = pd.read_excel(file)
+        
+        # Bentuk path untuk file data baru menggunakan variabel lokal di atas
+        new_file_name = new_data_tpl.format(symbol=symbol)
+        new_file_path = os.path.join(new_data_path, new_file_name)
+        
+        if os.path.exists(new_file_path):
+            # --- SKENARIO 1: DATA BARU DITEMUKAN ---
+            try:
+                df = pd.read_csv(new_file_path)
+                
+                # Sesuaikan nama kolom dengan format ekspektasi pipeline
+                df = df.rename(columns={
+                    "date": "Date",
+                    "open": "Open",
+                    "high": "High",
+                    "low": "Low",
+                    "close": "Close",
+                    "volume": "Volume"
+                })
+                
+                if "Dividends" not in df.columns:
+                    df["Dividends"] = 0
+                if "Stock Splits" not in df.columns:
+                    df["Stock Splits"] = 0
+                    
+            except Exception as e:
+                print(f"[Warning] Gagal memuat file baru untuk {symbol}: {e}. Fallback ke data lama.")
+                # Fallback ke data lama
+                try:
+                    df = pd.read_csv(file)
+                except Exception:
+                    df = pd.read_excel(file)
+        else:
+            # --- SKENARIO 2: DATA BARU TIDAK ADA (FALLBACK KE DATA LAMA SECARA OTOMATIS) ---
+            try:
+                df = pd.read_csv(file)
+            except Exception:
+                df = pd.read_excel(file)
+                
         df["symbol"] = symbol
         frames.append(df)
 
